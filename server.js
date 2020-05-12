@@ -28,19 +28,17 @@ var https_options = {
   ],
 };
 
-app.listen(port, () => console.log("Server is up"));
+// app.listen(port, () => console.log("Server is up"));
 
-const requestHandler = (request, response) => {
-  console.log(request.url);
-  response.end("Hello Node.js Server with HTTPS");
-};
+// const requestHandler = (request, response) => {
+//   console.log(request.url);
+//   response.end("Hello Node.js Server with HTTPS");
+// };
 
 const server = https.createServer(https_options, app);
-
 server.listen(port, (err) => {
   if (err) {
     return console.log("something bad happened", err);
   }
-
   console.log(`server is listening on ${port}`);
 });
