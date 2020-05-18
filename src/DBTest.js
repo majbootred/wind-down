@@ -1,5 +1,5 @@
 import React from "react";
-import { set, get } from "idb-keyval";
+import { set, get, clear } from "idb-keyval";
 import { Container, Row, Col, Button } from "react-bootstrap";
 
 export default class DBTest extends React.Component {
@@ -25,6 +25,9 @@ export default class DBTest extends React.Component {
       <div>
         <h1>Here we are, {this.state.name}</h1>
         {this._renderButton()}
+        <Button variant="primary" onClick={this._clearDB}>
+          Clear DB
+        </Button>
       </div>
     );
   }
@@ -39,6 +42,10 @@ export default class DBTest extends React.Component {
     }
     return;
   }
+
+  _clearDB = () => {
+    clear();
+  };
 
   _handleClick = () => {
     get("name").then((val) => {
