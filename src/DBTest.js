@@ -1,4 +1,5 @@
 import React from "react";
+import ReactDOM from "react-dom";
 import { set, get, clear } from "idb-keyval";
 import {
   Container,
@@ -10,7 +11,7 @@ import {
   ListGroup,
   Form,
 } from "react-bootstrap";
-import { IoIosAddCircleOutline } from "react-icons/io";
+import { FaPlus, FaTrashAlt, FaPenFancy } from "react-icons/fa";
 
 export default class DBTest extends React.Component {
   constructor() {
@@ -46,7 +47,7 @@ export default class DBTest extends React.Component {
         <Container>
           <Row>
             <Col md={{ span: 6, offset: 3 }} xs={{ span: 12 }}>
-              <Form>
+              <Form ref={(form) => (this.messageForm = form)}>
                 <InputGroup className="mb-3">
                   <FormControl
                     placeholder="Add Item"
@@ -60,7 +61,7 @@ export default class DBTest extends React.Component {
                       onClick={this._onAddClick}
                       type="submit"
                     >
-                      <IoIosAddCircleOutline />
+                      <FaPlus />
                     </Button>
                   </InputGroup.Append>
                 </InputGroup>
@@ -69,14 +70,6 @@ export default class DBTest extends React.Component {
           </Row>
           {this._renderList()}
         </Container>
-
-        {/* <ListGroup>
-          <ListGroup.Item>Cras justo odio</ListGroup.Item>
-          <ListGroup.Item>Dapibus ac facilisis in</ListGroup.Item>
-          <ListGroup.Item>Morbi leo risus</ListGroup.Item>
-          <ListGroup.Item>Porta ac consectetur ac</ListGroup.Item>
-          <ListGroup.Item>Vestibulum at eros</ListGroup.Item>
-        </ListGroup> */}
       </div>
     );
   }
@@ -95,7 +88,7 @@ export default class DBTest extends React.Component {
   _renderList() {
     return (
       <Row>
-        <Col md={{ span: 6, offset: 3 }} xs={{ span: 12 }}>
+        <Col md={{ span: 6, offset: 3 }} xs={12}>
           <ListGroup>{this._renderListItems()}</ListGroup>
         </Col>
       </Row>
@@ -103,8 +96,26 @@ export default class DBTest extends React.Component {
   }
 
   _renderListItems() {
-    return this.state.items.map((item) => {
-      return <ListGroup.Item>{item}</ListGroup.Item>;
+    return this.state.items.map((item, index) => {
+      return (
+        <InputGroup className="mb-3">
+          <Form.Control plaintext readOnly value={item} />
+          <InputGroup.Append>
+            <Button variant="secondary" type="submit">
+              <FaPenFancy />
+            </Button>
+          </InputGroup.Append>
+          <InputGroup.Append>
+            <Button
+              variant="secondary"
+              onClick={this._onDeleteClick(index)}
+              type="submit"
+            >
+              <FaTrashAlt />
+            </Button>
+          </InputGroup.Append>
+        </InputGroup>
+      );
     });
   }
 
@@ -118,7 +129,14 @@ export default class DBTest extends React.Component {
       let items = this.state.items;
       items.push(this.state.addField);
       this.setState(this.setState({ items }));
+      ReactDOM.findDOMNode(this.messageForm).reset();
     }
+  };
+
+  _onDeleteClick = (index) => () => {
+    let items = JSON.parse(JSON.stringify(this.state.items));
+    items.splice(index, 1);
+    this.setState({ items: items });
   };
 
   ////
