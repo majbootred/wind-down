@@ -1,12 +1,12 @@
 import React from "react";
 import { set, get, clear } from "idb-keyval";
-import { Container, Row, Col, Button } from "react-bootstrap";
+import { Container, Row, Col, Button, ListGroup } from "react-bootstrap";
 
 export default class DBTest extends React.Component {
   constructor() {
     super();
     this.state = {
-      name: "other user",
+      name: "",
       dbChanged: false,
     };
   }
@@ -28,6 +28,13 @@ export default class DBTest extends React.Component {
         <Button variant="primary" onClick={this._clearDB}>
           Clear DB
         </Button>
+        <ListGroup>
+          <ListGroup.Item>Cras justo odio</ListGroup.Item>
+          <ListGroup.Item>Dapibus ac facilisis in</ListGroup.Item>
+          <ListGroup.Item>Morbi leo risus</ListGroup.Item>
+          <ListGroup.Item>Porta ac consectetur ac</ListGroup.Item>
+          <ListGroup.Item>Vestibulum at eros</ListGroup.Item>
+        </ListGroup>
       </div>
     );
   }

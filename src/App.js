@@ -41,7 +41,7 @@ export default function App() {
                   <Home name="User" />
                 </Route>
                 <Route path="/indexeddb-test">
-                  <DBTest name="other User" />
+                  <DBTest />
                 </Route>
                 <Route path="/hook-test">
                   <HookTest />
