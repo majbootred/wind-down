@@ -113,17 +113,6 @@ export default class DBTest extends React.Component {
     );
   }
 
-  _renderButton() {
-    if (this.state.dbChanged) {
-      return (
-        <Button variant="primary" onClick={this._handleClick}>
-          Get Name From DB
-        </Button>
-      );
-    }
-    return;
-  }
-
   _renderList() {
     return (
       <Row>
