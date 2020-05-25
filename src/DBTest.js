@@ -212,5 +212,6 @@ export default class DBTest extends React.Component {
 
   _onClearDBClick = () => {
     clear();
+    window.location.reload();
   };
 }
