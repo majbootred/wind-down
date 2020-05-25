@@ -21,6 +21,7 @@ export default class DBTest extends React.Component {
       dbChanged: false,
       items: [],
       addField: "",
+      changeFieldIndex: undefined,
     };
   }
 
@@ -52,8 +53,7 @@ export default class DBTest extends React.Component {
                   <FormControl
                     placeholder="Add Item"
                     aria-label="Add Item"
-                    aria-describedby="basic-addon2"
-                    onChange={this._handleAddChange}
+                    onChange={this._handleAddFieldChange}
                   />
                   <InputGroup.Append>
                     <Button
@@ -97,11 +97,25 @@ export default class DBTest extends React.Component {
 
   _renderListItems() {
     return this.state.items.map((item, index) => {
+      let options = {};
+      if (this.state.changeFieldIndex !== index) {
+        options["readOnly"] = "readOnly";
+        options["plaintext"] = "plaintext";
+      }
       return (
         <InputGroup className="mb-3">
-          <Form.Control plaintext readOnly value={item} />
+          <Form.Control
+            {...options}
+            value={item}
+            onChange={this._handleFieldChange(index)}
+            onKeyPress={this._handleSubmitFieldChange}
+          />
           <InputGroup.Append>
-            <Button variant="secondary" type="submit">
+            <Button
+              variant="secondary"
+              type="submit"
+              onClick={this._onChangeClick(index)}
+            >
               <FaPenFancy />
             </Button>
           </InputGroup.Append>
@@ -119,12 +133,12 @@ export default class DBTest extends React.Component {
     });
   }
 
-  _handleAddChange = (e) => {
+  _handleAddFieldChange = (e) => {
     this.setState({ addField: e.target.value });
   };
 
-  _onAddClick = (event) => {
-    event.preventDefault();
+  _onAddClick = (e) => {
+    e.preventDefault();
     if (this.state.addField.length > 0) {
       let items = this.state.items;
       items.push(this.state.addField);
@@ -133,10 +147,28 @@ export default class DBTest extends React.Component {
     }
   };
 
+  _onChangeClick = (index) => () => {
+    this.setState({
+      changeFieldIndex: index,
+    });
+  };
+
   _onDeleteClick = (index) => () => {
     let items = JSON.parse(JSON.stringify(this.state.items));
     items.splice(index, 1);
     this.setState({ items: items });
+  };
+
+  _handleFieldChange = (index) => (e) => {
+    let items = JSON.parse(JSON.stringify(this.state.items));
+    items[index] = e.target.value;
+    this.setState({ items: items });
+  };
+
+  _handleSubmitFieldChange = (e) => {
+    if (e.key === "Enter") {
+      this.setState({ changeFieldIndex: undefined });
+    }
   };
 
   ////
