@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import { set, get, clear } from "idb-keyval";
+import { set, get, clear, keys } from "idb-keyval";
 import {
   Container,
   Row,
@@ -16,9 +16,10 @@ import { FaPlus, FaTrashAlt, FaPenFancy } from "react-icons/fa";
 export default class DBTest extends React.Component {
   constructor() {
     super();
+    this.id = "maj";
     this.state = {
-      name: "",
-      dbChanged: false,
+      id: "",
+      isAppInitialized: false,
       items: [],
       addField: "",
       changeFieldIndex: undefined,
@@ -26,24 +27,55 @@ export default class DBTest extends React.Component {
   }
 
   componentDidMount() {
-    set("name", "maj")
-      .then(() => {
-        this.setState({ dbChanged: true });
-        console.log("It worked!");
-      })
-      .catch((err) => console.log("It failed!", err));
+    keys().then((keys) => {
+      console.log(keys);
+      if (keys.length !== 0) {
+        get("list")
+          .then((val) => {
+            if (val.items !== undefined) {
+              this.setState({
+                items: val.items,
+                isAppInitialized: true,
+              });
+            } else {
+              this.setState({ isAppInitialized: true });
+            }
+          })
+          .catch((err) => {
+            console.error("get error", err);
+          });
+      } else {
+        set("list", { id: this.id })
+          .then(() => {
+            this.setState({ id: this.id, isAppInitialized: true });
+          })
+          .catch((err) => console.error("set error:", err));
+      }
+    });
   }
 
-  componentDidUpdate() {}
+  componentDidUpdate() {
+    if (this.state.isAppInitialized) {
+      get("list").then((val) => {
+        if (val.id === this.id) {
+          set("list", {
+            id: this.id,
+            items: this.state.items,
+          })
+            .then(() => {
+              console.log("idb updated");
+            })
+            .catch((err) => {
+              console.error("update error", err);
+            });
+        }
+      });
+    }
+  }
 
   render() {
     return (
       <div>
-        <h1>Here we are, {this.state.name}</h1>
-        {/* {this._renderButton()} */}
-        <Button variant="primary" onClick={this._onClearDBClick}>
-          Clear DB
-        </Button>
         <hr />
         <Container>
           <Row>
@@ -69,6 +101,13 @@ export default class DBTest extends React.Component {
             </Col>
           </Row>
           {this._renderList()}
+          <Row>
+            <Col md={{ span: 6, offset: 3 }} xs={{ span: 12 }}>
+              <Button variant="primary" onClick={this._onClearDBClick}>
+                Clear DB
+              </Button>
+            </Col>
+          </Row>
         </Container>
       </div>
     );
@@ -169,14 +208,6 @@ export default class DBTest extends React.Component {
     if (e.key === "Enter") {
       this.setState({ changeFieldIndex: undefined });
     }
-  };
-
-  ////
-
-  _handleClick = () => {
-    get("name").then((val) => {
-      this.setState({ name: val });
-    });
   };
 
   _onClearDBClick = () => {
