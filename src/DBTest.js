@@ -17,9 +17,8 @@ import NameInput from "./NameInput";
 export default class DBTest extends React.Component {
   constructor() {
     super();
-    this.id = "maj";
     this.state = {
-      id: "",
+      name: "",
       isAppInitialized: false,
       items: [],
       addField: "",
@@ -28,14 +27,14 @@ export default class DBTest extends React.Component {
   }
 
   componentDidMount() {
-    //check for existing db
+    //check for existing indexeddb
     keys().then((keys) => {
-      console.log(keys);
       if (keys.length !== 0) {
         get("list")
           .then((val) => {
             if (val.items !== undefined) {
               this.setState({
+                name: val.name,
                 items: val.items,
                 isAppInitialized: true,
               });
@@ -47,9 +46,9 @@ export default class DBTest extends React.Component {
             console.error("get error", err);
           });
       } else {
-        set("list", { id: this.id })
+        set("list", { name: this.state.name })
           .then(() => {
-            this.setState({ id: this.id, isAppInitialized: true });
+            this.setState({ name: this.state.name, isAppInitialized: true });
           })
           .catch((err) => console.error("set error:", err));
       }
@@ -59,18 +58,19 @@ export default class DBTest extends React.Component {
   componentDidUpdate() {
     if (this.state.isAppInitialized) {
       get("list").then((val) => {
-        if (val.id === this.id) {
-          set("list", {
-            id: this.id,
-            items: this.state.items,
+        // TODO: Check Online if list exits
+        //  if (val.name === this.state.name) {
+        set("list", {
+          name: this.state.name,
+          items: this.state.items,
+        })
+          .then(() => {
+            console.log("idb updated");
           })
-            .then(() => {
-              console.log("idb updated");
-            })
-            .catch((err) => {
-              console.error("update error", err);
-            });
-        }
+          .catch((err) => {
+            console.error("update error", err);
+          });
+        //  }
       });
     }
   }
@@ -88,32 +88,19 @@ export default class DBTest extends React.Component {
           </Row>
           <Row>
             <Col md={{ span: 6, offset: 3 }} xs={{ span: 12 }}>
-              <h1>{this.state.id}</h1>
+              <h1>{this.state.name}</h1>
             </Col>
           </Row>
           <Row>
             <Col md={{ span: 6, offset: 3 }} xs={{ span: 12 }}>
-              <Form ref={(form) => (this.form = form)}>
-                <InputGroup className="mb-3">
-                  <FormControl
-                    placeholder="Add Item"
-                    aria-label="Add Item"
-                    onChange={this._handleAddFieldChange}
-                  />
-                  <InputGroup.Append>
-                    <Button
-                      variant="secondary"
-                      onClick={this._onAddClick}
-                      type="submit"
-                    >
-                      <FaPlus />
-                    </Button>
-                  </InputGroup.Append>
-                </InputGroup>
-              </Form>
+              {this._renderAddField()}
             </Col>
           </Row>
-          {this._renderList()}
+          <Row>
+            <Col md={{ span: 6, offset: 3 }} xs={12}>
+              <ListGroup>{this._renderListItems()}</ListGroup>
+            </Col>
+          </Row>
           <Row>
             <Col md={{ span: 6, offset: 3 }} xs={{ span: 12 }}>
               <Button variant="primary" onClick={this._onClearDBClick}>
@@ -126,14 +113,29 @@ export default class DBTest extends React.Component {
     );
   }
 
-  _renderList() {
-    return (
-      <Row>
-        <Col md={{ span: 6, offset: 3 }} xs={12}>
-          <ListGroup>{this._renderListItems()}</ListGroup>
-        </Col>
-      </Row>
-    );
+  _renderAddField() {
+    if (this.state.name.length !== 0) {
+      return (
+        <Form ref={(form) => (this.form = form)}>
+          <InputGroup className="mb-3">
+            <FormControl
+              placeholder="Add Item"
+              aria-label="Add Item"
+              onChange={this._handleAddFieldChange}
+            />
+            <InputGroup.Append>
+              <Button
+                variant="secondary"
+                onClick={this._onAddClick}
+                type="submit"
+              >
+                <FaPlus />
+              </Button>
+            </InputGroup.Append>
+          </InputGroup>
+        </Form>
+      );
+    }
   }
 
   _renderListItems() {
@@ -175,8 +177,9 @@ export default class DBTest extends React.Component {
   }
 
   _handleNameSubmit = (name) => {
-    this.setState({ id: name });
-    console.log(name);
+    if (name !== this.state.name) {
+      this.setState({ name: name, items: [] });
+    }
   };
 
   _handleAddFieldChange = (e) => {
