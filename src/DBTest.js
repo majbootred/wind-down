@@ -12,6 +12,7 @@ import {
   Form,
 } from "react-bootstrap";
 import { FaPlus, FaTrashAlt, FaPenFancy } from "react-icons/fa";
+import NameInput from "./NameInput";
 
 export default class DBTest extends React.Component {
   constructor() {
@@ -27,6 +28,7 @@ export default class DBTest extends React.Component {
   }
 
   componentDidMount() {
+    //check for existing db
     keys().then((keys) => {
       console.log(keys);
       if (keys.length !== 0) {
@@ -80,7 +82,18 @@ export default class DBTest extends React.Component {
         <Container>
           <Row>
             <Col md={{ span: 6, offset: 3 }} xs={{ span: 12 }}>
-              <Form ref={(form) => (this.messageForm = form)}>
+              <NameInput onSubmitName={this._handleNameSubmit} />
+              <hr />
+            </Col>
+          </Row>
+          <Row>
+            <Col md={{ span: 6, offset: 3 }} xs={{ span: 12 }}>
+              <h1>{this.state.id}</h1>
+            </Col>
+          </Row>
+          <Row>
+            <Col md={{ span: 6, offset: 3 }} xs={{ span: 12 }}>
+              <Form ref={(form) => (this.form = form)}>
                 <InputGroup className="mb-3">
                   <FormControl
                     placeholder="Add Item"
@@ -161,6 +174,11 @@ export default class DBTest extends React.Component {
     });
   }
 
+  _handleNameSubmit = (name) => {
+    this.setState({ id: name });
+    console.log(name);
+  };
+
   _handleAddFieldChange = (e) => {
     this.setState({ addField: e.target.value });
   };
@@ -171,7 +189,7 @@ export default class DBTest extends React.Component {
       let items = this.state.items;
       items.push(this.state.addField);
       this.setState(this.setState({ items }));
-      ReactDOM.findDOMNode(this.messageForm).reset();
+      ReactDOM.findDOMNode(this.form).reset();
     }
   };
 
