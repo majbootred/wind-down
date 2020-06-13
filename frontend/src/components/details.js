@@ -1,40 +1,40 @@
-import React, { Component } from 'react'
-import axios from 'axios'
+import React, { Component } from "react";
+import axios from "axios";
 
 export default class Details extends Component {
   constructor() {
-    super()
+    super();
     this.state = {
       data: [],
       buttonClicked: false,
-    }
-    this.getDetails = this.getDetails.bind(this)
+    };
+    this.getDetails = this.getDetails.bind(this);
   }
 
   componentDidMount() {
-    axios.get('http://localhost:4000/getData').then((res) => {
+    axios.get("https://localhost:443/getData").then((res) => {
       this.setState({
         data: res.data,
-      })
-    })
+      });
+    });
   }
 
   getDetails() {
     if (!this.state.buttonClicked) {
       this.setState({
         buttonClicked: true,
-      })
+      });
     }
   }
 
   render() {
     return (
-      <div className="container-fluid" style={{ marginTop: '30px' }}>
+      <div className="container-fluid" style={{ marginTop: "30px" }}>
         <div className="row">
-          <div className="col-xs-12" style={{ textAlign: 'center' }}>
+          <div className="col-xs-12" style={{ textAlign: "center" }}>
             <button
               className="btn btn-primary"
-              style={{ position: 'absolute', marginLeft: '50%' }}
+              style={{ position: "absolute", marginLeft: "50%" }}
               onClick={this.getDetails}
             >
               Click
@@ -42,9 +42,9 @@ export default class Details extends Component {
             <div
               className="container-fluid"
               style={{
-                position: 'absolute',
-                textAlign: 'center',
-                marginTop: '50px',
+                position: "absolute",
+                textAlign: "center",
+                marginTop: "50px",
               }}
             >
               {this.state.buttonClicked
@@ -52,7 +52,7 @@ export default class Details extends Component {
                     return (
                       <React.Fragment>
                         <p>
-                          {' '}
+                          {" "}
                           <b>name</b> : {data.name}
                         </p>
                         <p>
@@ -60,13 +60,13 @@ export default class Details extends Component {
                         </p>
                         <hr />
                       </React.Fragment>
-                    )
+                    );
                   })
                 : null}
             </div>
           </div>
         </div>
       </div>
-    )
+    );
   }
 }
