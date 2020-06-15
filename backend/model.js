@@ -2,13 +2,16 @@ const mongoose = require('mongoose')
 
 const Schema = mongoose.Schema
 
-let detail = new Schema({
+let list = new Schema({
   name: {
     type: String,
   },
-  age: {
+  items: {
+    type: Array,
+  },
+  timestamp: {
     type: Number,
   },
 })
 
-module.exports = mongoose.model('detail', detail)
+module.exports = mongoose.model('list', list)

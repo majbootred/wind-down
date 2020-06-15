@@ -4,7 +4,7 @@ const mongoose = require('mongoose')
 const path = require('path')
 const fs = require('fs')
 const https = require('https')
-let detail = require('./model')
+let list = require('./model')
 
 const PORT = 443
 
@@ -13,7 +13,7 @@ app.use(cors())
 app.use(express.static(path.join(__dirname, '..', 'frontend', 'build')))
 
 //db connect
-mongoose.connect('mongodb://127.0.0.1:27017/details', {
+mongoose.connect('mongodb://127.0.0.1:27017/lists', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
@@ -24,19 +24,40 @@ connection.once('open', function () {
   console.log('Connection with MongoDB was successful')
 })
 
+connection.on('error', (err) => {
+  console.error('connection error:', err)
+})
+
 //routes
 app.get('/', function (req, res) {
   res.sendFile(path.join(__dirname, '..', 'frontend', 'build', 'index.html'))
 })
 
-app.get('/getData', function (req, res) {
-  detail.find({}, function (err, result) {
-    if (err) {
-      res.send(err)
-    } else {
-      res.send(result)
+app.get('/getAll', async function (req, res) {
+  try {
+    const items = await list.find()
+    res.send(items)
+  } catch (error) {
+    res.send(error)
+  }
+})
+
+app.get('/getOne', async function (req, res) {
+  try {
+    if (req.query.name === undefined || req.query.name.length === 0) {
+      throw {
+        name: 'DBException',
+        message: 'No name parameter in query',
+        toString: function () {
+          return this.name + ': ' + this.message
+        },
+      }
     }
-  })
+    const item = await list.find({ name: req.query.name })
+    res.send(item)
+  } catch (error) {
+    res.send(error)
+  }
 })
 
 //server
@@ -59,7 +80,3 @@ server.listen(PORT, (err) => {
   }
   console.log(`server is listening on ${PORT}`)
 })
-
-// app.listen(PORT, function () {
-//   console.log('Server is running on Port: ' + PORT)
-// })
