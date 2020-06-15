@@ -53,7 +53,7 @@ app.get('/getOne', async function (req, res) {
         },
       }
     }
-    const item = await list.find({ name: req.query.name })
+    const item = await list.findOne({ name: req.query.name })
     res.send(item)
   } catch (error) {
     res.send(error)

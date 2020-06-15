@@ -12,6 +12,7 @@ import {
   Form,
 } from "react-bootstrap";
 import { FaPlus, FaTrashAlt, FaPenFancy } from "react-icons/fa";
+import axios from "axios";
 import NameInput from "./nameInput";
 
 export default class Dashboard extends React.Component {
@@ -178,9 +179,24 @@ export default class Dashboard extends React.Component {
   }
 
   _handleNameSubmit = (name) => {
-    //initialize new list in state
     if (name !== this.state.name) {
-      this.setState({ name: name, items: [], timestamp: new Date().getTime() });
+      //load from DB
+      axios.get(`https://localhost:443/getOne?name=${name}`).then((res) => {
+        if (res.data.length !== 0) {
+          this.setState({
+            name: res.data.name,
+            items: res.data.items,
+            timestamp: res.data.timestamp,
+          });
+        } else {
+          //initialize new list in state
+          this.setState({
+            name: name,
+            items: [],
+            timestamp: new Date().getTime(),
+          });
+        }
+      });
     }
   };
 
