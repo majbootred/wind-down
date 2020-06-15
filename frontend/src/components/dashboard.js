@@ -66,6 +66,7 @@ export default class Dashboard extends React.Component {
         set("list", {
           name: this.state.name,
           items: this.state.items,
+          timestamp: this.state.timestamp,
         })
           .then(() => {
             console.log("idb updated");
