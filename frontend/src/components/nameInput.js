@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import React, { useState, useRef } from "react";
 import { Button, InputGroup, FormControl, Form } from "react-bootstrap";
 import { FaArrowRight } from "react-icons/fa";

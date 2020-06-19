@@ -1,3 +1,4 @@
+/* eslint-disable react/no-find-dom-node */
 import React from "react";
 import ReactDOM from "react-dom";
 import { set, get, clear, keys } from "idb-keyval";
@@ -8,12 +9,12 @@ import {
   Button,
   InputGroup,
   FormControl,
-  ListGroup,
   Form,
 } from "react-bootstrap";
-import { FaPlus, FaTrashAlt, FaPenFancy } from "react-icons/fa";
+import { FaPlus } from "react-icons/fa";
 import axios from "axios";
 import NameInput from "./nameInput";
+import List from "./list/list";
 
 export default class Dashboard extends React.Component {
   constructor() {
@@ -55,7 +56,7 @@ export default class Dashboard extends React.Component {
                   }
                 })
                 .catch((error) => {
-                  console.error(console.error());
+                  console.error(error);
                 });
             } else {
               this.setState({ isAppInitialized: true });
@@ -117,7 +118,12 @@ export default class Dashboard extends React.Component {
         </Row>
         <Row>
           <Col md={{ span: 6, offset: 3 }} xs={12}>
-            <ListGroup>{this._renderListItems()}</ListGroup>
+            <List
+              listItems={this.state.items}
+              onListChange={(items) => {
+                this._handleListChange(items);
+              }}
+            />
           </Col>
         </Row>
         <Row>
@@ -154,44 +160,6 @@ export default class Dashboard extends React.Component {
         </Form>
       );
     }
-  }
-
-  _renderListItems() {
-    return this.state.items.map((item, index) => {
-      let options = {};
-      if (this.state.changeFieldIndex !== index) {
-        options["readOnly"] = "readOnly";
-        options["plaintext"] = "plaintext";
-      }
-      return (
-        <InputGroup className="mb-3">
-          <Form.Control
-            {...options}
-            value={item}
-            onChange={this._handleFieldChange(index)}
-            onKeyPress={this._handleSubmitFieldChange}
-          />
-          <InputGroup.Append>
-            <Button
-              variant="secondary"
-              type="submit"
-              onClick={this._onChangeClick(index)}
-            >
-              <FaPenFancy />
-            </Button>
-          </InputGroup.Append>
-          <InputGroup.Append>
-            <Button
-              variant="secondary"
-              onClick={this._onDeleteClick(index)}
-              type="submit"
-            >
-              <FaTrashAlt />
-            </Button>
-          </InputGroup.Append>
-        </InputGroup>
-      );
-    });
   }
 
   _handleNameSubmit = (name) => {
@@ -234,28 +202,8 @@ export default class Dashboard extends React.Component {
     }
   };
 
-  _onChangeClick = (index) => () => {
-    this.setState({
-      changeFieldIndex: index,
-    });
-  };
-
-  _onDeleteClick = (index) => () => {
-    let items = JSON.parse(JSON.stringify(this.state.items));
-    items.splice(index, 1);
+  _handleListChange = (items) => {
     this.setState({ items, timestamp: new Date().getTime() });
-  };
-
-  _handleFieldChange = (index) => (e) => {
-    let items = JSON.parse(JSON.stringify(this.state.items));
-    items[index] = e.target.value;
-    this.setState({ items: items, timestamp: new Date().getTime() });
-  };
-
-  _handleSubmitFieldChange = (e) => {
-    if (e.key === "Enter") {
-      this.setState({ changeFieldIndex: undefined });
-    }
   };
 
   _onClearDBClick = () => {
