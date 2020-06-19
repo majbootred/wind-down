@@ -30,18 +30,33 @@ export default class Dashboard extends React.Component {
 
   componentDidMount() {
     //check for existing indexeddb and load it
-    //otherwise set an idexed db
     keys().then((keys) => {
       if (keys.length !== 0) {
         get("list")
           .then((val) => {
             if (val.items !== undefined) {
-              this.setState({
-                name: val.name,
-                items: val.items,
-                timestamp: val.timestamp,
-                isAppInitialized: true,
-              });
+              //check for existing remote dataset and load if it's younger than the local one
+              this._getDatasetFromRemoteDB(val.name)
+                .then((data) => {
+                  if (data.length !== 0 && data.timestamp > val.timestamp) {
+                    this.setState({
+                      name: data.name,
+                      items: data.items,
+                      timestamp: data.timestamp,
+                    });
+                  } else {
+                    //load local dataset
+                    this.setState({
+                      name: val.name,
+                      items: val.items,
+                      timestamp: val.timestamp,
+                      isAppInitialized: true,
+                    });
+                  }
+                })
+                .catch((error) => {
+                  console.error(console.error());
+                });
             } else {
               this.setState({ isAppInitialized: true });
             }
@@ -50,6 +65,7 @@ export default class Dashboard extends React.Component {
             console.error("get error", err);
           });
       } else {
+        //otherwise set an idexed db
         set("list", { name: this.state.name })
           .then(() => {
             this.setState({ name: this.state.name, isAppInitialized: true });
@@ -181,22 +197,26 @@ export default class Dashboard extends React.Component {
   _handleNameSubmit = (name) => {
     if (name !== this.state.name) {
       //load from DB
-      axios.get(`https://localhost:443/getOne?name=${name}`).then((res) => {
-        if (res.data.length !== 0) {
-          this.setState({
-            name: res.data.name,
-            items: res.data.items,
-            timestamp: res.data.timestamp,
-          });
-        } else {
-          //initialize new list in state
-          this.setState({
-            name: name,
-            items: [],
-            timestamp: new Date().getTime(),
-          });
-        }
-      });
+      this._getDatasetFromRemoteDB(name)
+        .then((data) => {
+          if (data.length !== 0) {
+            this.setState({
+              name: data.name,
+              items: data.items,
+              timestamp: data.timestamp,
+            });
+          } else {
+            //initialize new list in state
+            this.setState({
+              name: name,
+              items: [],
+              timestamp: new Date().getTime(),
+            });
+          }
+        })
+        .catch((error) => {
+          console.error(error);
+        });
     }
   };
 
@@ -242,4 +262,35 @@ export default class Dashboard extends React.Component {
     clear();
     window.location.reload();
   };
+
+  // Helper
+  _getDatasetFromRemoteDB(name) {
+    return new Promise((resolve, reject) => {
+      axios
+        .get(`https://localhost:443/getOne?name=${name}`)
+        .then((res) => {
+          resolve(res.data);
+        })
+        .catch((error) => {
+          reject(error);
+        });
+    });
+  }
+
+  _saveCurrentDatasetToRemoteDB() {
+    return new Promise((resolve, reject) => {
+      axios
+        .post(`https://localhost:443/save`, {
+          name: this.state.name,
+          items: this.state.items,
+          timestamp: this.state.timestamp,
+        })
+        .then((res) => {
+          resolve(res.data);
+        })
+        .catch((error) => {
+          reject(error);
+        });
+    });
+  }
 }
