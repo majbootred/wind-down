@@ -1,28 +1,28 @@
-import React from "react";
-import { set, get, clear, keys } from "idb-keyval";
-import { Container, Row, Col, Button } from "react-bootstrap";
-import axios from "axios";
-import NameInput from "./nameInput";
-import List from "./list/list";
+import React from 'react'
+import { set, get, clear, keys } from 'idb-keyval'
+import { Container, Row, Col, Button } from 'react-bootstrap'
+import axios from 'axios'
+import NameInput from './nameInput'
+import List from './list/list'
 
 export default class Dashboard extends React.Component {
   constructor() {
-    super();
+    super()
     this.state = {
       isAppInitialized: false,
-      name: "",
+      name: '',
       items: [],
       timestamp: undefined,
-      addField: "",
+      addField: '',
       changeFieldIndex: undefined,
-    };
+    }
   }
 
   componentDidMount() {
     //check for existing indexeddb and load it
     keys().then((keys) => {
       if (keys.length !== 0) {
-        get("list")
+        get('list')
           .then((val) => {
             if (val.items !== undefined) {
               //check for existing remote dataset and load if it's younger than the local one
@@ -33,7 +33,7 @@ export default class Dashboard extends React.Component {
                       name: data.name,
                       items: data.items,
                       timestamp: data.timestamp,
-                    });
+                    })
                   } else {
                     //load local dataset
                     this.setState({
@@ -41,48 +41,53 @@ export default class Dashboard extends React.Component {
                       items: val.items,
                       timestamp: val.timestamp,
                       isAppInitialized: true,
-                    });
+                    })
                   }
                 })
                 .catch((error) => {
-                  console.error(error);
-                });
+                  console.error(error)
+                })
             } else {
-              this.setState({ isAppInitialized: true });
+              this.setState({ isAppInitialized: true })
             }
           })
           .catch((err) => {
-            console.error("get error", err);
-          });
+            console.error('get error', err)
+          })
       } else {
         //otherwise set an idexed db
-        set("list", { name: this.state.name })
+        set('list', { name: this.state.name })
           .then(() => {
-            this.setState({ name: this.state.name, isAppInitialized: true });
+            this.setState({ name: this.state.name, isAppInitialized: true })
           })
-          .catch((err) => console.error("set error:", err));
+          .catch((err) => console.error('set error:', err))
       }
-    });
+    })
   }
 
   componentDidUpdate() {
     if (this.state.isAppInitialized) {
-      get("list").then((val) => {
+      get('list').then((val) => {
         // TODO: Check in MongoDB if list with given name exits
         //  if (val.name === this.state.name) {
-        set("list", {
+        set('list', {
           name: this.state.name,
           items: this.state.items,
           timestamp: this.state.timestamp,
         })
           .then(() => {
-            console.log("idb updated");
+            console.log('idb updated')
+            /// TEST CODE
+            this._saveCurrentDatasetToRemoteDB().then(() =>
+              console.log('posted'),
+            )
+            //// TEST CODE
           })
           .catch((err) => {
-            console.error("update error", err);
-          });
+            console.error('update error', err)
+          })
         //  }
-      });
+      })
     }
   }
 
@@ -109,7 +114,7 @@ export default class Dashboard extends React.Component {
           </Col>
         </Row>
       </Container>
-    );
+    )
   }
 
   _renderList() {
@@ -118,10 +123,10 @@ export default class Dashboard extends React.Component {
         <List
           listItems={this.state.items}
           onListChange={(items) => {
-            this._handleListChange(items);
+            this._handleListChange(items)
           }}
         />
-      );
+      )
     }
   }
 
@@ -135,30 +140,30 @@ export default class Dashboard extends React.Component {
               name: data.name,
               items: data.items,
               timestamp: data.timestamp,
-            });
+            })
           } else {
             //initialize new list in state
             this.setState({
               name: name,
               items: [],
               timestamp: new Date().getTime(),
-            });
+            })
           }
         })
         .catch((error) => {
-          console.error(error);
-        });
+          console.error(error)
+        })
     }
-  };
+  }
 
   _handleListChange = (items) => {
-    this.setState({ items, timestamp: new Date().getTime() });
-  };
+    this.setState({ items, timestamp: new Date().getTime() })
+  }
 
   _onClearDBClick = () => {
-    clear();
-    window.location.reload();
-  };
+    clear()
+    window.location.reload()
+  }
 
   // DB Helper
   _getDatasetFromRemoteDB(name) {
@@ -166,12 +171,12 @@ export default class Dashboard extends React.Component {
       axios
         .get(`https://localhost:443/getOne?name=${name}`)
         .then((res) => {
-          resolve(res.data);
+          resolve(res.data)
         })
         .catch((error) => {
-          reject(error);
-        });
-    });
+          reject(error)
+        })
+    })
   }
 
   _saveCurrentDatasetToRemoteDB() {
@@ -183,11 +188,11 @@ export default class Dashboard extends React.Component {
           timestamp: this.state.timestamp,
         })
         .then((res) => {
-          resolve(res.data);
+          resolve(res.data)
         })
         .catch((error) => {
-          reject(error);
-        });
-    });
+          reject(error)
+        })
+    })
   }
 }

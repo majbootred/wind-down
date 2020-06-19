@@ -4,13 +4,16 @@ const mongoose = require('mongoose')
 const path = require('path')
 const fs = require('fs')
 const https = require('https')
-let list = require('./model')
+const bodyParser = require('body-parser')
+const list = require('./model')
 
 const PORT = 443
 
 const app = express()
 app.use(cors())
 app.use(express.static(path.join(__dirname, '..', 'frontend', 'build')))
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({ extended: true }))
 
 //db connect
 mongoose.connect('mongodb://127.0.0.1:27017/lists', {
@@ -58,6 +61,26 @@ app.get('/getOne', async function (req, res) {
   } catch (error) {
     res.send(error)
   }
+})
+
+app.post('/save', async function (req, res) {
+  // try {
+  //   if (req.query.item === undefined || req.query.item.length === 0) {
+  //     throw {
+  //       name: 'DBException',
+  //       message: 'No item parameter in query',
+  //       toString: function () {
+  //         return this.name + ': ' + this.message
+  //       },
+  //     }
+  //   }
+  //   const item = await list.findOne({ name: req.query.name })
+  //   res.send(item)
+  // } catch (error) {
+  //   res.send(error)
+  // }
+  console.log(req.body)
+  res.send('save')
 })
 
 //server
