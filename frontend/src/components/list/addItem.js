@@ -2,23 +2,24 @@ import React, { useState, useRef } from "react";
 import { Button, InputGroup, FormControl, Form } from "react-bootstrap";
 import { FaArrowRight } from "react-icons/fa";
 
-const NameInput = ({ onSubmitName }) => {
-  const [name, setName] = useState("");
+const AddItem = ({ onSubmitItem }) => {
+  const [value, setValue] = useState("");
   const formRef = useRef(null);
 
   const _onSubmit = (e) => {
     e.preventDefault();
-    onSubmitName(name);
+    onSubmitItem(value);
     formRef.current.reset();
+    setValue("");
   };
 
   return (
     <Form ref={formRef}>
       <InputGroup className="mb-3">
         <FormControl
-          placeholder="Please provide a name"
-          aria-label="Please provide a name"
-          onChange={(e) => setName(e.target.value)}
+          placeholder="Add Item"
+          aria-label="Add Item"
+          onChange={(e) => setValue(e.target.value)}
         />
         <InputGroup.Append>
           <Button
@@ -34,4 +35,4 @@ const NameInput = ({ onSubmitName }) => {
   );
 };
 
-export default NameInput;
+export default AddItem;

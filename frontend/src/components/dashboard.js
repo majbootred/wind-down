@@ -1,17 +1,6 @@
-/* eslint-disable react/no-find-dom-node */
 import React from "react";
-import ReactDOM from "react-dom";
 import { set, get, clear, keys } from "idb-keyval";
-import {
-  Container,
-  Row,
-  Col,
-  Button,
-  InputGroup,
-  FormControl,
-  Form,
-} from "react-bootstrap";
-import { FaPlus } from "react-icons/fa";
+import { Container, Row, Col, Button } from "react-bootstrap";
 import axios from "axios";
 import NameInput from "./nameInput";
 import List from "./list/list";
@@ -108,24 +97,10 @@ export default class Dashboard extends React.Component {
         </Row>
         <Row>
           <Col md={{ span: 6, offset: 3 }} xs={{ span: 12 }}>
-            <h1>{this.state.name}</h1>
+            <h2>{this.state.name}</h2>
           </Col>
         </Row>
-        <Row>
-          <Col md={{ span: 6, offset: 3 }} xs={{ span: 12 }}>
-            {this._renderAddField()}
-          </Col>
-        </Row>
-        <Row>
-          <Col md={{ span: 6, offset: 3 }} xs={12}>
-            <List
-              listItems={this.state.items}
-              onListChange={(items) => {
-                this._handleListChange(items);
-              }}
-            />
-          </Col>
-        </Row>
+        {this._renderList()}
         <Row>
           <Col md={{ span: 6, offset: 3 }} xs={{ span: 12 }}>
             <Button variant="primary" onClick={this._onClearDBClick}>
@@ -137,27 +112,15 @@ export default class Dashboard extends React.Component {
     );
   }
 
-  _renderAddField() {
+  _renderList() {
     if (this.state.name.length !== 0) {
       return (
-        <Form ref={(form) => (this.form = form)}>
-          <InputGroup className="mb-3">
-            <FormControl
-              placeholder="Add Item"
-              aria-label="Add Item"
-              onChange={this._handleAddFieldChange}
-            />
-            <InputGroup.Append>
-              <Button
-                variant="secondary"
-                onClick={this._onAddClick}
-                type="submit"
-              >
-                <FaPlus />
-              </Button>
-            </InputGroup.Append>
-          </InputGroup>
-        </Form>
+        <List
+          listItems={this.state.items}
+          onListChange={(items) => {
+            this._handleListChange(items);
+          }}
+        />
       );
     }
   }
@@ -188,20 +151,6 @@ export default class Dashboard extends React.Component {
     }
   };
 
-  _handleAddFieldChange = (e) => {
-    this.setState({ addField: e.target.value });
-  };
-
-  _onAddClick = (e) => {
-    e.preventDefault();
-    if (this.state.addField.length > 0) {
-      let items = this.state.items;
-      items.push(this.state.addField);
-      this.setState(this.setState({ items, timestamp: new Date().getTime() }));
-      ReactDOM.findDOMNode(this.form).reset();
-    }
-  };
-
   _handleListChange = (items) => {
     this.setState({ items, timestamp: new Date().getTime() });
   };
@@ -211,7 +160,7 @@ export default class Dashboard extends React.Component {
     window.location.reload();
   };
 
-  // Helper
+  // DB Helper
   _getDatasetFromRemoteDB(name) {
     return new Promise((resolve, reject) => {
       axios
