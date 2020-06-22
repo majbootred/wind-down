@@ -13,54 +13,65 @@ export default class Dashboard extends React.Component {
       name: '',
       items: [],
       timestamp: undefined,
-      addField: '',
-      changeFieldIndex: undefined,
     }
   }
 
   componentDidMount() {
-    //check for existing indexeddb and load it
     keys().then((keys) => {
+      //check for existing idb and load it
       if (keys.length !== 0) {
         get('list')
           .then((val) => {
-            if (val.items !== undefined) {
-              //check for existing remote dataset and load if it's younger than the local one
-              this._getDatasetFromRemoteDB(val.name)
-                .then((data) => {
-                  if (data.length !== 0 && data.timestamp > val.timestamp) {
-                    this.setState({
-                      name: data.name,
-                      items: data.items,
-                      timestamp: data.timestamp,
-                    })
-                  } else {
-                    //load local dataset
-                    this.setState({
-                      name: val.name,
-                      items: val.items,
-                      timestamp: val.timestamp,
-                      isAppInitialized: true,
-                    })
-                  }
-                })
-                .catch((error) => {
-                  console.error(error)
-                })
-            } else {
-              this.setState({ isAppInitialized: true })
-            }
+            //check if idb list has items already (is initialized)
+            //if (val.items !== undefined) {
+            //
+            //check for existing remote dataset and load if it's younger than the local one
+            this._getDatasetFromRemoteDB(val.name)
+              .then((data) => {
+                if (
+                  data !== 'offline' &&
+                  data.length !== 0 &&
+                  data.timestamp > val.timestamp
+                ) {
+                  this.setState({
+                    name: data.name,
+                    items: data.items,
+                    timestamp: data.timestamp,
+                  })
+                } else {
+                  //load local dataset to state
+                  this.setState({
+                    name: val.name,
+                    items: val.items,
+                    timestamp: val.timestamp,
+                    isAppInitialized: true,
+                  })
+                }
+              })
+              .catch((error) => {
+                console.error(error)
+              })
+            // } else {
+
+            //   this.setState({ isAppInitialized: true })
+            // }
           })
           .catch((err) => {
-            console.error('get error', err)
+            console.error('idb get error', err)
           })
       } else {
         //otherwise set an idexed db
-        set('list', { name: this.state.name })
+        let newEntry = {
+          name: this.state.name,
+          items: [],
+          timestamp: Date.now(),
+        }
+        set('list', newEntry)
           .then(() => {
-            this.setState({ name: this.state.name, isAppInitialized: true })
+            newEntry['isAppInitialized'] = true
+            this.setState(newEntry)
           })
-          .catch((err) => console.error('set error:', err))
+          .catch((err) => console.error('idb set error:', err))
       }
     })
   }
@@ -68,8 +79,25 @@ export default class Dashboard extends React.Component {
   componentDidUpdate() {
     if (this.state.isAppInitialized) {
       get('list').then((val) => {
-        // TODO: Check in MongoDB if list with given name exits
-        //  if (val.name === this.state.name) {
+        //check mongodb for entry with given name and if it's younger than idb entry
+        this._getDatasetFromRemoteDB(val.name)
+          .then((data) => {
+            if (
+              data !== 'offline' &&
+              data.length !== 0 &&
+              data.timestamp > val.timestamp
+            ) {
+              this.setState({
+                name: data.name,
+                items: data.items,
+                timestamp: data.timestamp,
+              })
+            }
+          })
+          .catch((error) => {
+            console.error(error)
+          })
+        // save to local idb
         set('list', {
           name: this.state.name,
           items: this.state.items,
@@ -77,11 +105,18 @@ export default class Dashboard extends React.Component {
         })
           .then(() => {
             console.log('idb updated')
-            /// TEST CODE
-            this._saveCurrentDatasetToRemoteDB().then(() =>
-              console.log('posted'),
-            )
-            //// TEST CODE
+            // save to mongo dm
+            this._saveCurrentDatasetToRemoteDB()
+              .then((res) => {
+                if (res === 'offline') {
+                  console.log('currently offline: no mongoDB update')
+                } else {
+                  console.log('mongoDB updated')
+                }
+              })
+              .catch((error) => {
+                console.error(error)
+              })
           })
           .catch((err) => {
             console.error('update error', err)
@@ -135,7 +170,7 @@ export default class Dashboard extends React.Component {
       //load from DB
       this._getDatasetFromRemoteDB(name)
         .then((data) => {
-          if (data.length !== 0) {
+          if (data !== 'offline' && data.length !== 0) {
             this.setState({
               name: data.name,
               items: data.items,
@@ -167,32 +202,52 @@ export default class Dashboard extends React.Component {
 
   // DB Helper
   _getDatasetFromRemoteDB(name) {
-    return new Promise((resolve, reject) => {
-      axios
-        .get(`https://localhost:443/getOne?name=${name}`)
-        .then((res) => {
-          resolve(res.data)
-        })
-        .catch((error) => {
-          reject(error)
-        })
-    })
+    if (navigator.onLine) {
+      return new Promise((resolve, reject) => {
+        axios
+          .get(`https://localhost:443/getOne?name=${name}`)
+          .then((res) => {
+            resolve(res.data)
+          })
+          .catch((error) => {
+            if (error.message === 'Network Error') {
+              resolve('offline')
+            } else {
+              reject(error)
+            }
+          })
+      })
+    } else {
+      return new Promise((resolve) => {
+        resolve('offline')
+      })
+    }
   }
 
   _saveCurrentDatasetToRemoteDB() {
-    return new Promise((resolve, reject) => {
-      axios
-        .post(`https://localhost:443/save`, {
-          name: this.state.name,
-          items: this.state.items,
-          timestamp: this.state.timestamp,
-        })
-        .then((res) => {
-          resolve(res.data)
-        })
-        .catch((error) => {
-          reject(error)
-        })
-    })
+    if (navigator.onLine && this.state.name.length !== 0) {
+      return new Promise((resolve, reject) => {
+        axios
+          .post(`https://localhost:443/save`, {
+            name: this.state.name,
+            items: this.state.items,
+            timestamp: this.state.timestamp,
+          })
+          .then((res) => {
+            resolve(res.data)
+          })
+          .catch((error) => {
+            if (error.message === 'Network Error') {
+              resolve('offline')
+            } else {
+              reject(error)
+            }
+          })
+      })
+    } else {
+      return new Promise((resolve) => {
+        resolve('offline')
+      })
+    }
   }
 }

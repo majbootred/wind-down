@@ -47,15 +47,7 @@ app.get('/getAll', async function (req, res) {
 
 app.get('/getOne', async function (req, res) {
   try {
-    if (req.query.name === undefined || req.query.name.length === 0) {
-      throw {
-        name: 'DBException',
-        message: 'No name parameter in query',
-        toString: function () {
-          return this.name + ': ' + this.message
-        },
-      }
-    }
+    _handleMissingParameter(req.query.name)
     const item = await list.findOne({ name: req.query.name })
     res.send(item)
   } catch (error) {
@@ -64,27 +56,38 @@ app.get('/getOne', async function (req, res) {
 })
 
 app.post('/save', async function (req, res) {
-  // try {
-  //   if (req.query.item === undefined || req.query.item.length === 0) {
-  //     throw {
-  //       name: 'DBException',
-  //       message: 'No item parameter in query',
-  //       toString: function () {
-  //         return this.name + ': ' + this.message
-  //       },
-  //     }
-  //   }
-  //   const item = await list.findOne({ name: req.query.name })
-  //   res.send(item)
-  // } catch (error) {
-  //   res.send(error)
-  // }
-  console.log(req.body)
-  res.send('save')
+  try {
+    _handleMissingParameter(req.body.name)
+    const item = await list.findOne({ name: req.body.name })
+    if (item && item.timestamp < req.body.timestamp) {
+      // item exists and is older -> update
+      let filter = { name: req.body.name }
+      let update = req.body
+      let options = {
+        new: true,
+        upsert: true,
+      }
+      let doc = await list.findOneAndUpdate(filter, update, options)
+      console.log('updated:', doc)
+      res.send('save')
+    } else if (!item) {
+      // insert new item
+      const newItem = new list(req.body)
+      let saveItem = await newItem.save()
+      console.log('inserted', saveItem)
+      res.send('save')
+    } else {
+      console.log('made no entry')
+      res.send('made no entry')
+    }
+  } catch (error) {
+    console.log(error)
+    res.send(error)
+  }
 })
 
 //server
-var https_options = {
+const https_options = {
   key: fs.readFileSync('certificates/privkey.pem'),
 
   cert: fs.readFileSync('certificates/cert.pem'),
@@ -103,3 +106,16 @@ server.listen(PORT, (err) => {
   }
   console.log(`server is listening on ${PORT}`)
 })
+
+//helper
+const _handleMissingParameter = (parameter) => {
+  if (parameter === undefined || parameter.length === 0) {
+    throw {
+      name: 'DBException',
+      message: 'No name parameter',
+      toString: function () {
+        return this.name + ': ' + this.message
+      },
+    }
+  }
+}
