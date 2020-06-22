@@ -1,10 +1,11 @@
-import React from 'react'
-import './App.css'
-import 'bootstrap/dist/css/bootstrap.min.css'
-import Dashboard from './components/dashboard'
+import React from "react";
+import "./App.css";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "bootswatch/dist/solar/bootstrap.min.css";
+import Dashboard from "./components/dashboard";
 
 function App() {
-  return <Dashboard />
+  return <Dashboard />;
 }
 
-export default App
+export default App;
