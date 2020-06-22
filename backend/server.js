@@ -86,6 +86,17 @@ app.post('/save', async function (req, res) {
   }
 })
 
+app.get('/deleteOne', async function (req, res) {
+  try {
+    _handleMissingParameter(req.query.name)
+    const item = await list.findOneAndDelete({ name: req.query.name })
+    console.log('deleted', item)
+    res.send(item)
+  } catch (error) {
+    res.send(error)
+  }
+})
+
 //server
 const https_options = {
   key: fs.readFileSync('certificates/privkey.pem'),

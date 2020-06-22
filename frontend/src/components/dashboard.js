@@ -142,9 +142,14 @@ export default class Dashboard extends React.Component {
         </Row>
         {this._renderList()}
         <Row>
-          <Col md={{ span: 6, offset: 3 }} xs={{ span: 12 }}>
-            <Button variant="primary" onClick={this._onClearDBClick}>
-              Clear DB
+          <Col md={{ span: 3, offset: 3 }} xs={{ span: 12 }}>
+            <Button variant="primary" onClick={this._onClearIDBClick}>
+              delete locally
+            </Button>
+          </Col>
+          <Col md={{ span: 3 }} xs={{ span: 12 }}>
+            <Button variant="primary" onClick={this._onClearMongoDBClick}>
+              delete locally and remote
             </Button>
           </Col>
         </Row>
@@ -195,8 +200,24 @@ export default class Dashboard extends React.Component {
     this.setState({ items, timestamp: new Date().getTime() })
   }
 
-  _onClearDBClick = () => {
+  _onClearIDBClick = () => {
     clear()
+    window.location.reload()
+  }
+
+  _onClearMongoDBClick = () => {
+    clear()
+    this._deleteCurrentDatasetFromRemoteDB()
+      .then((res) => {
+        if (res === 'offline') {
+          console.log('currently offline: no mongoDB update')
+        } else {
+          console.log('entry deleted')
+        }
+      })
+      .catch((error) => {
+        console.error(error)
+      })
     window.location.reload()
   }
 
@@ -233,6 +254,29 @@ export default class Dashboard extends React.Component {
             items: this.state.items,
             timestamp: this.state.timestamp,
           })
+          .then((res) => {
+            resolve(res.data)
+          })
+          .catch((error) => {
+            if (error.message === 'Network Error') {
+              resolve('offline')
+            } else {
+              reject(error)
+            }
+          })
+      })
+    } else {
+      return new Promise((resolve) => {
+        resolve('offline')
+      })
+    }
+  }
+
+  _deleteCurrentDatasetFromRemoteDB() {
+    if (navigator.onLine) {
+      return new Promise((resolve, reject) => {
+        axios
+          .get(`https://localhost:443/deleteOne?name=${this.state.name}`)
           .then((res) => {
             resolve(res.data)
           })
