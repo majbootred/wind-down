@@ -1,26 +1,28 @@
-import React from 'react'
-import { set, get, clear, keys } from 'idb-keyval'
-import { Container, Row, Col, Button } from 'react-bootstrap'
-import axios from 'axios'
-import NameInput from './nameInput'
-import List from './list/list'
+import React from "react";
+import { set, get, clear, keys } from "idb-keyval";
+import { Container, Row, Col, Button } from "react-bootstrap";
+import axios from "axios";
+import NameInput from "./nameInput";
+import List from "./list/list";
+import Card from "./list/card";
+import MasonryGrid from "./list/masonry-grid";
 
 export default class Dashboard extends React.Component {
   constructor() {
-    super()
+    super();
     this.state = {
       isAppInitialized: false,
-      name: '',
+      name: "",
       items: [],
       timestamp: undefined,
-    }
+    };
   }
 
   componentDidMount() {
     keys().then((keys) => {
       //check for existing idb and load it
       if (keys.length !== 0) {
-        get('list')
+        get("list")
           .then((val) => {
             //check if idb list has items already (is initialized)
             //if (val.items !== undefined) {
@@ -29,7 +31,7 @@ export default class Dashboard extends React.Component {
             this._getDatasetFromRemoteDB(val.name)
               .then((data) => {
                 if (
-                  data !== 'offline' &&
+                  data !== "offline" &&
                   data.length !== 0 &&
                   data.timestamp > val.timestamp
                 ) {
@@ -37,7 +39,7 @@ export default class Dashboard extends React.Component {
                     name: data.name,
                     items: data.items,
                     timestamp: data.timestamp,
-                  })
+                  });
                 } else {
                   //load local dataset to state
                   this.setState({
@@ -45,45 +47,45 @@ export default class Dashboard extends React.Component {
                     items: val.items,
                     timestamp: val.timestamp,
                     isAppInitialized: true,
-                  })
+                  });
                 }
               })
               .catch((error) => {
-                console.error(error)
-              })
+                console.error(error);
+              });
             // } else {
 
             //   this.setState({ isAppInitialized: true })
             // }
           })
           .catch((err) => {
-            console.error('idb get error', err)
-          })
+            console.error("idb get error", err);
+          });
       } else {
         //otherwise set an idexed db
         let newEntry = {
           name: this.state.name,
           items: [],
           timestamp: Date.now(),
-        }
-        set('list', newEntry)
+        };
+        set("list", newEntry)
           .then(() => {
-            newEntry['isAppInitialized'] = true
-            this.setState(newEntry)
+            newEntry["isAppInitialized"] = true;
+            this.setState(newEntry);
           })
-          .catch((err) => console.error('idb set error:', err))
+          .catch((err) => console.error("idb set error:", err));
       }
-    })
+    });
   }
 
   componentDidUpdate() {
     if (this.state.isAppInitialized) {
-      get('list').then((val) => {
+      get("list").then((val) => {
         //check mongodb for entry with given name and if it's younger than idb entry
         this._getDatasetFromRemoteDB(val.name)
           .then((data) => {
             if (
-              data !== 'offline' &&
+              data !== "offline" &&
               data.length !== 0 &&
               data.timestamp > val.timestamp
             ) {
@@ -91,38 +93,38 @@ export default class Dashboard extends React.Component {
                 name: data.name,
                 items: data.items,
                 timestamp: data.timestamp,
-              })
+              });
             }
           })
           .catch((error) => {
-            console.error(error)
-          })
+            console.error(error);
+          });
         // save to local idb
-        set('list', {
+        set("list", {
           name: this.state.name,
           items: this.state.items,
           timestamp: this.state.timestamp,
         })
           .then(() => {
-            console.log('idb updated')
+            console.log("idb updated");
             // save to mongo dm
             this._saveCurrentDatasetToRemoteDB()
               .then((res) => {
-                if (res === 'offline') {
-                  console.log('currently offline: no mongoDB update')
+                if (res === "offline") {
+                  console.log("currently offline: no mongoDB update");
                 } else {
-                  console.log('mongoDB updated')
+                  console.log("mongoDB updated");
                 }
               })
               .catch((error) => {
-                console.error(error)
-              })
+                console.error(error);
+              });
           })
           .catch((err) => {
-            console.error('update error', err)
-          })
+            console.error("update error", err);
+          });
         //  }
-      })
+      });
     }
   }
 
@@ -153,8 +155,30 @@ export default class Dashboard extends React.Component {
             </Button>
           </Col>
         </Row>
+        {/* <Row>
+          <Col md={{ span: 6, offset: 3 }} xs={{ span: 12 }}>
+            &nbsp;
+          </Col>
+        </Row>
+        <Row>
+          <Col lg={{ span: 3 }} md={{ span: 4 }} xs={{ span: 12 }}>
+            <Card />
+          </Col>
+          <Col lg={{ span: 3 }} md={{ span: 4 }} xs={{ span: 12 }}>
+            <Card />
+          </Col>
+          <Col lg={{ span: 3 }} md={{ span: 4 }} xs={{ span: 12 }}>
+            <Card />
+          </Col>
+          <Col lg={{ span: 3 }} md={{ span: 4 }} xs={{ span: 12 }}>
+            <Card />
+          </Col>
+        </Row> */}
+        <Row>
+          <MasonryGrid />
+        </Row>
       </Container>
-    )
+    );
   }
 
   _renderList() {
@@ -163,10 +187,10 @@ export default class Dashboard extends React.Component {
         <List
           listItems={this.state.items}
           onListChange={(items) => {
-            this._handleListChange(items)
+            this._handleListChange(items);
           }}
         />
-      )
+      );
     }
   }
 
@@ -175,51 +199,51 @@ export default class Dashboard extends React.Component {
       //load from DB
       this._getDatasetFromRemoteDB(name)
         .then((data) => {
-          if (data !== 'offline' && data.length !== 0) {
+          if (data !== "offline" && data.length !== 0) {
             this.setState({
               name: data.name,
               items: data.items,
               timestamp: data.timestamp,
-            })
+            });
           } else {
             //initialize new list in state
             this.setState({
               name: name,
               items: [],
               timestamp: new Date().getTime(),
-            })
+            });
           }
         })
         .catch((error) => {
-          console.error(error)
-        })
+          console.error(error);
+        });
     }
-  }
+  };
 
   _handleListChange = (items) => {
-    this.setState({ items, timestamp: new Date().getTime() })
-  }
+    this.setState({ items, timestamp: new Date().getTime() });
+  };
 
   _onClearIDBClick = () => {
-    clear()
-    window.location.reload()
-  }
+    clear();
+    window.location.reload();
+  };
 
   _onClearMongoDBClick = () => {
-    clear()
+    clear();
     this._deleteCurrentDatasetFromRemoteDB()
       .then((res) => {
-        if (res === 'offline') {
-          console.log('currently offline: no mongoDB update')
+        if (res === "offline") {
+          console.log("currently offline: no mongoDB update");
         } else {
-          console.log('entry deleted')
+          console.log("entry deleted");
         }
       })
       .catch((error) => {
-        console.error(error)
-      })
-    window.location.reload()
-  }
+        console.error(error);
+      });
+    window.location.reload();
+  };
 
   // DB Helper
   _getDatasetFromRemoteDB(name) {
@@ -228,20 +252,20 @@ export default class Dashboard extends React.Component {
         axios
           .get(`https://localhost:443/getOne?name=${name}`)
           .then((res) => {
-            resolve(res.data)
+            resolve(res.data);
           })
           .catch((error) => {
-            if (error.message === 'Network Error') {
-              resolve('offline')
+            if (error.message === "Network Error") {
+              resolve("offline");
             } else {
-              reject(error)
+              reject(error);
             }
-          })
-      })
+          });
+      });
     } else {
       return new Promise((resolve) => {
-        resolve('offline')
-      })
+        resolve("offline");
+      });
     }
   }
 
@@ -255,20 +279,20 @@ export default class Dashboard extends React.Component {
             timestamp: this.state.timestamp,
           })
           .then((res) => {
-            resolve(res.data)
+            resolve(res.data);
           })
           .catch((error) => {
-            if (error.message === 'Network Error') {
-              resolve('offline')
+            if (error.message === "Network Error") {
+              resolve("offline");
             } else {
-              reject(error)
+              reject(error);
             }
-          })
-      })
+          });
+      });
     } else {
       return new Promise((resolve) => {
-        resolve('offline')
-      })
+        resolve("offline");
+      });
     }
   }
 
@@ -278,20 +302,20 @@ export default class Dashboard extends React.Component {
         axios
           .get(`https://localhost:443/deleteOne?name=${this.state.name}`)
           .then((res) => {
-            resolve(res.data)
+            resolve(res.data);
           })
           .catch((error) => {
-            if (error.message === 'Network Error') {
-              resolve('offline')
+            if (error.message === "Network Error") {
+              resolve("offline");
             } else {
-              reject(error)
+              reject(error);
             }
-          })
-      })
+          });
+      });
     } else {
       return new Promise((resolve) => {
-        resolve('offline')
-      })
+        resolve("offline");
+      });
     }
   }
 }
