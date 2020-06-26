@@ -7,13 +7,13 @@ const List = (props) => {
   const { listItems, onListChange } = props;
 
   const _onItemChange = (value, index) => {
-    let items = JSON.parse(JSON.stringify(listItems));
+    let items = [...listItems];
     items[index] = value;
     props.onListChange(items);
   };
 
   const _onItemDelete = (index) => {
-    let items = JSON.parse(JSON.stringify(listItems));
+    let items = [...listItems];
     items.splice(index, 1);
     onListChange(items);
   };
