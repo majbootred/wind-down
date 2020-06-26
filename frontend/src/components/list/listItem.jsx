@@ -9,7 +9,7 @@ const ListItem = (props) => {
   const [isReadOnly, setIsReadOnly] = useState(true);
 
   useEffect(() => {
-    setName(props.value);
+    setName(props.value.name);
   }, [props.value]);
 
   const toggleIsReadOnly = () => setIsReadOnly(!isReadOnly);

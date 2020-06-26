@@ -6,8 +6,6 @@ import NameInput from "./nameInput";
 import List from "./list/list";
 import MasonryGrid from "./list/masonry-grid";
 
-const Item = require("./model");
-
 export default class Dashboard extends React.Component {
   constructor() {
     super();
@@ -20,8 +18,6 @@ export default class Dashboard extends React.Component {
   }
 
   componentDidMount() {
-    // let item = Item.create({ name: "fu" });
-    // console.log(item);
     keys().then((keys) => {
       //check for existing idb and load it
       if (keys.length !== 0) {
