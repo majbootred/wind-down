@@ -1,9 +1,36 @@
 import React, { useState, useEffect } from "react";
+import { Modal, Button } from "react-bootstrap";
 import { styles } from "./theme";
 import { Masonry } from "masonic";
 
-const MasonryGrid = (props) => {
+const Grid = (props) => {
   const { listItems, onListChange } = props;
+
+  const [show, setShow] = useState(false);
+  const handleClose = () => setShow(false);
+  const handleShow = () => setShow(true);
+
+  const Card = ({ data: { name } }) => (
+    <div>
+      <div className={style("card")} onClick={handleShow}>
+        <span>{name}</span>
+      </div>
+      <Modal show={show} onHide={handleClose}>
+        <Modal.Header closeButton>
+          <Modal.Title>{name}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>Woohoo, you're reading this text in a modal!</Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleClose}>
+            Close
+          </Button>
+          <Button variant="primary" onClick={handleClose}>
+            Save Changes
+          </Button>
+        </Modal.Footer>
+      </Modal>
+    </div>
+  );
 
   return (
     <main className={style("container")}>
@@ -24,12 +51,6 @@ const MasonryGrid = (props) => {
     </main>
   );
 };
-
-const Card = ({ data: { name } }) => (
-  <div className={style("card")}>
-    <span>{name}</span>
-  </div>
-);
 
 const style = styles({
   masonic: `
@@ -77,16 +98,6 @@ const style = styles({
         }
       }
     `,
-  img: ({ radius }) => `
-      width: 100%;
-      display: block;
-      border-top-left-radius: ${radius.md};
-      border-top-right-radius: ${radius.md};
-      display: block;
-    `,
 });
 
-const randomChoice = (items) => items[Math.floor(Math.random() * items.length)];
-let i = 0;
-
-export default MasonryGrid;
+export default Grid;

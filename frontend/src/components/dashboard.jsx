@@ -4,7 +4,7 @@ import { Container, Row, Col, Button } from "react-bootstrap";
 import axios from "axios";
 import NameInput from "./nameInput";
 import List from "./list/list";
-import MasonryGrid from "./list/masonry-grid";
+import Grid from "./list/grid";
 
 export default class Dashboard extends React.Component {
   constructor() {
@@ -176,7 +176,7 @@ export default class Dashboard extends React.Component {
   _renderMasonry() {
     if (this.state.name.length !== 0) {
       return (
-        <MasonryGrid
+        <Grid
           listItems={this.state.items}
           onListChange={(items) => {
             this._handleListChange(items);
