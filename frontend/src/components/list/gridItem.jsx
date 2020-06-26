@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Button, Modal, Form, Col } from "react-bootstrap";
 import { FaTrashAlt, FaPenFancy, FaCheck } from "react-icons/fa";
+
 import { styles } from "./theme";
 const Item = require("../model");
 
@@ -29,13 +30,24 @@ const GridItem = (props) => {
   };
 
   const _handleModalClose = () => setModalShow(false);
-  const _handlemodalShow = () => setModalShow(true);
+  const _handleModalShow = () => setModalShow(true);
   const _toggleIsReadOnly = () => setIsReadOnly(!isReadOnly);
 
   const _onDelete = (e) => {
     e.preventDefault();
     onDelete();
     _handleModalClose();
+  };
+
+  const _handleEditSubmit = (e) => {
+    e.preventDefault();
+
+    if (!isReadOnly) {
+      _onSubmit(e);
+      _handleModalClose();
+    }
+
+    _toggleIsReadOnly();
   };
 
   const _onSubmit = (e) => {
@@ -49,15 +61,9 @@ const GridItem = (props) => {
     onSubmit(changedItem);
   };
 
-  const _handleEdit = (e) => {
-    e.preventDefault();
-
-    if (!isReadOnly) {
-      _onSubmit(e);
-      _handleModalClose();
-    }
-
-    _toggleIsReadOnly();
+  const _onDateFocus = (e) => {
+    e.currentTarget.type = "date";
+    e.currentTarget.value = new Date(date).toISOString().substr(0, 10);
   };
 
   let inputFieldOptions = {};
@@ -66,13 +72,37 @@ const GridItem = (props) => {
     inputFieldOptions["plaintext"] = "plaintext";
   }
 
+  const _renderHeader = () => {
+    return isReadOnly ? (
+      new Date(date).toLocaleDateString("de-DE", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      })
+    ) : (
+      <Form.Control
+        type="text"
+        name="date"
+        placeholder={new Date(date).toLocaleDateString("de-DE", {
+          year: "numeric",
+          month: "numeric",
+          day: "numeric",
+        })}
+        onFocus={_onDateFocus}
+        onChange={(e) => {
+          setDate(new Date(e.target.value));
+        }}
+      />
+    );
+  };
   const _renderEditSubmitButton = () => {
     return isReadOnly ? <FaPenFancy /> : <FaCheck />;
   };
 
   return (
     <div>
-      <div className={style("card")} onClick={_handlemodalShow}>
+      <div className={style("card")} onClick={_handleModalShow}>
         <span>
           {new Date(date).toLocaleDateString("de-DE", {
             year: "numeric",
@@ -83,14 +113,7 @@ const GridItem = (props) => {
       </div>
       <Modal show={modalShow} onHide={_handleModalClose}>
         <Modal.Header closeButton>
-          <Modal.Title>
-            {new Date(date).toLocaleDateString("de-DE", {
-              weekday: "long",
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            })}
-          </Modal.Title>
+          <Modal.Title>{_renderHeader()}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form>
@@ -100,7 +123,6 @@ const GridItem = (props) => {
                   {...inputFieldOptions}
                   name="value1"
                   size="sm"
-                  placeholder="1"
                   as="textarea"
                   rows="2"
                   value={value1}
@@ -115,7 +137,6 @@ const GridItem = (props) => {
                   {...inputFieldOptions}
                   name="value2"
                   size="sm"
-                  placeholder="2"
                   as="textarea"
                   rows="2"
                   value={value2}
@@ -130,7 +151,6 @@ const GridItem = (props) => {
                   {...inputFieldOptions}
                   name="value2"
                   size="sm"
-                  placeholder="3"
                   as="textarea"
                   rows="2"
                   value={value3}
@@ -144,7 +164,7 @@ const GridItem = (props) => {
           </Form>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="primary" onClick={_handleEdit}>
+          <Button variant="primary" onClick={_handleEditSubmit}>
             {_renderEditSubmitButton()}
           </Button>
           <Button variant="secondary" onClick={_onDelete}>
