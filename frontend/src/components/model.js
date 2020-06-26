@@ -1,9 +1,9 @@
 const create = ({
   name = '',
-  date = undefined,
-  items = [],
-  color = '',
-  img = undefined,
+  date = Date.now(),
+  items = ['', '', ''],
+  color = '#1d2326',
+  img = '',
 } = {}) => ({
   name,
   date,

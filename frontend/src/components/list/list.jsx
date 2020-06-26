@@ -12,7 +12,6 @@ const List = (props) => {
 
   const _onItemChange = (value, index) => {
     let items = [...listItems];
-    //items[index] = value;
     items[index] = Item.create({ name: value });
     props.onListChange(items);
   };

@@ -155,7 +155,7 @@ export default class Dashboard extends React.Component {
           </Col>
         </Row>
 
-        <Row>{this._renderMasonry()}</Row>
+        {this._renderMasonry()}
       </Container>
     );
   }
