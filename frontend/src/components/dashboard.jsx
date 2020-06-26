@@ -155,7 +155,7 @@ export default class Dashboard extends React.Component {
           </Col>
         </Row>
 
-        {this._renderMasonry()}
+        {this._renderGrid()}
       </Container>
     );
   }
@@ -173,7 +173,7 @@ export default class Dashboard extends React.Component {
     }
   }
 
-  _renderMasonry() {
+  _renderGrid() {
     if (this.state.name.length !== 0) {
       return (
         <Grid

@@ -1,21 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { Button, Modal, Form, Col } from "react-bootstrap";
-import { FaTrashAlt, FaPenFancy } from "react-icons/fa";
+import { FaTrashAlt, FaPenFancy, FaCheck } from "react-icons/fa";
 import { styles } from "./theme";
 const Item = require("../model");
 
 const GridItem = (props) => {
   const { key, item, onSubmit, onDelete } = props;
-  const [modalShow, setModalShow] = useState(false);
+
   const [date, setDate] = useState(item.date);
   const [color, setColor] = useState(item.color);
   const [img, setImg] = useState(item.img);
   const [value1, setValue1] = useState(item.items[0]);
   const [value2, setValue2] = useState(item.items[1]);
   const [value3, setValue3] = useState(item.items[2]);
-  const handleClose = () => setModalShow(false);
-  const handleShow = () => setModalShow(true);
-
+  const [modalShow, setModalShow] = useState(false);
+  const [isReadOnly, setIsReadOnly] = useState(true);
   useEffect(() => {
     updateStates(item);
   }, [item]);
@@ -29,10 +28,14 @@ const GridItem = (props) => {
     setValue3(item.items[2]);
   };
 
+  const _handleModalClose = () => setModalShow(false);
+  const _handlemodalShow = () => setModalShow(true);
+  const _toggleIsReadOnly = () => setIsReadOnly(!isReadOnly);
+
   const _onDelete = (e) => {
     e.preventDefault();
     onDelete();
-    handleClose();
+    _handleModalClose();
   };
 
   const _onSubmit = (e) => {
@@ -46,9 +49,30 @@ const GridItem = (props) => {
     onSubmit(changedItem);
   };
 
+  const _handleEdit = (e) => {
+    e.preventDefault();
+
+    if (!isReadOnly) {
+      _onSubmit(e);
+      _handleModalClose();
+    }
+
+    _toggleIsReadOnly();
+  };
+
+  let inputFieldOptions = {};
+  if (isReadOnly) {
+    inputFieldOptions["readOnly"] = "readOnly";
+    inputFieldOptions["plaintext"] = "plaintext";
+  }
+
+  const _renderEditSubmitButton = () => {
+    return isReadOnly ? <FaPenFancy /> : <FaCheck />;
+  };
+
   return (
     <div>
-      <div className={style("card")} onClick={handleShow}>
+      <div className={style("card")} onClick={_handlemodalShow}>
         <span>
           {new Date(date).toLocaleDateString("de-DE", {
             year: "numeric",
@@ -57,7 +81,7 @@ const GridItem = (props) => {
           })}
         </span>
       </div>
-      <Modal show={modalShow} onHide={handleClose}>
+      <Modal show={modalShow} onHide={_handleModalClose}>
         <Modal.Header closeButton>
           <Modal.Title>
             {new Date(date).toLocaleDateString("de-DE", {
@@ -73,49 +97,55 @@ const GridItem = (props) => {
             <Form.Row>
               <Col>
                 <Form.Control
+                  {...inputFieldOptions}
                   name="value1"
                   size="sm"
                   placeholder="1"
                   as="textarea"
-                  rows="3"
+                  rows="2"
                   value={value1}
                   onChange={(e) => {
                     setValue1(e.target.value);
                   }}
+                  style={{ resize: "none" }}
                 />
               </Col>
               <Col>
                 <Form.Control
+                  {...inputFieldOptions}
                   name="value2"
                   size="sm"
                   placeholder="2"
                   as="textarea"
-                  rows="3"
+                  rows="2"
                   value={value2}
                   onChange={(e) => {
                     setValue2(e.target.value);
                   }}
+                  style={{ resize: "none" }}
                 />
               </Col>
               <Col>
                 <Form.Control
+                  {...inputFieldOptions}
                   name="value2"
                   size="sm"
                   placeholder="3"
                   as="textarea"
-                  rows="3"
+                  rows="2"
                   value={value3}
                   onChange={(e) => {
                     setValue3(e.target.value);
                   }}
+                  style={{ resize: "none" }}
                 />
               </Col>
             </Form.Row>
           </Form>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="primary" onClick={handleClose}>
-            <FaPenFancy />
+          <Button variant="primary" onClick={_handleEdit}>
+            {_renderEditSubmitButton()}
           </Button>
           <Button variant="secondary" onClick={_onDelete}>
             <FaTrashAlt />

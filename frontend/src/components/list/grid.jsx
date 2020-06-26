@@ -8,7 +8,7 @@ const Grid = (props) => {
 
   const _onItemChange = (value, index) => {
     let items = [...listItems];
-    items[index] = Item.create({ name: value });
+    items[index] = Item.create(value);
     props.onListChange(items);
   };
 

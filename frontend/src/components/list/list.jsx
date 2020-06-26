@@ -4,9 +4,6 @@ import ListItem from "./listItem";
 import AddItem from "./addItem";
 const Item = require("../model");
 
-// let item = Item.create({ name: "fu" });
-// console.log(item);
-
 const List = (props) => {
   const { listItems, onListChange } = props;
 
