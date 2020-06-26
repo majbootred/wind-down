@@ -20,7 +20,8 @@ const List = (props) => {
 
   const _onItemAdd = (value) => {
     if (value.length > 0) {
-      let items = JSON.parse(JSON.stringify(listItems));
+      //let items = JSON.parse(JSON.stringify(listItems));
+      let items = [...listItems];
       items.push(value);
       onListChange(items);
     }

@@ -1,16 +1,15 @@
-import React, { useState } from "react";
-import catNames from "cat-names";
+import React, { useState, useEffect } from "react";
 import { styles } from "./theme";
 import { Masonry } from "masonic";
 
-const MasonryGrid = () => {
+const MasonryGrid = (props) => {
+  const { listItems, onListChange } = props;
   // Constructs the data for our grid items
-  const [items] = useState(() =>
-    Array.from(Array(10), () => ({
-      id: i++,
-      name: catNames.random(),
-    }))
-  );
+  const getItems = listItems.map((item) => {
+    return { id: i++, name: item };
+  });
+
+  const [items] = useState(getItems);
 
   return (
     <main className={style("container")}>
@@ -21,18 +20,18 @@ const MasonryGrid = () => {
           // Adds 8px of space between the grid cells
           columnGutter={2}
           // Sets the minimum column width to 172px
-          columnWidth={100}
+          columnWidth={120}
           // Pre-renders 5 windows worth of content
           overscanBy={5}
           // This is the grid item component
-          render={FakeCard}
+          render={Card}
         />
       </div>
     </main>
   );
 };
 
-const FakeCard = ({ data: { id, name } }) => (
+const Card = ({ data: { id, name } }) => (
   <div id={id} className={style("card")}>
     <span>{`${name} ${id}`} </span>
   </div>

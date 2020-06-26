@@ -155,28 +155,8 @@ export default class Dashboard extends React.Component {
             </Button>
           </Col>
         </Row>
-        {/* <Row>
-          <Col md={{ span: 6, offset: 3 }} xs={{ span: 12 }}>
-            &nbsp;
-          </Col>
-        </Row>
-        <Row>
-          <Col lg={{ span: 3 }} md={{ span: 4 }} xs={{ span: 12 }}>
-            <Card />
-          </Col>
-          <Col lg={{ span: 3 }} md={{ span: 4 }} xs={{ span: 12 }}>
-            <Card />
-          </Col>
-          <Col lg={{ span: 3 }} md={{ span: 4 }} xs={{ span: 12 }}>
-            <Card />
-          </Col>
-          <Col lg={{ span: 3 }} md={{ span: 4 }} xs={{ span: 12 }}>
-            <Card />
-          </Col>
-        </Row> */}
-        <Row>
-          <MasonryGrid />
-        </Row>
+
+        <Row>{this._renderMasonry()}</Row>
       </Container>
     );
   }
@@ -185,6 +165,19 @@ export default class Dashboard extends React.Component {
     if (this.state.name.length !== 0) {
       return (
         <List
+          listItems={this.state.items}
+          onListChange={(items) => {
+            this._handleListChange(items);
+          }}
+        />
+      );
+    }
+  }
+
+  _renderMasonry() {
+    if (this.state.name.length !== 0) {
+      return (
+        <MasonryGrid
           listItems={this.state.items}
           onListChange={(items) => {
             this._handleListChange(items);
