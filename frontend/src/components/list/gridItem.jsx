@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Button, Modal, Form, Col } from "react-bootstrap";
+import { Button, Modal, Form, Col, Image } from "react-bootstrap";
 import {
   FaTrashAlt,
   FaPenFancy,
@@ -79,6 +79,16 @@ const GridItem = (props) => {
     _toggleColorPicker();
   };
 
+  const _onFileSelect = (e) => {
+    e.preventDefault();
+    let reader = new FileReader();
+    let file = e.target.files[0];
+    reader.onloadend = () => {
+      setImg(reader.result);
+    };
+    reader.readAsDataURL(file);
+  };
+
   let inputFieldOptions = {};
   if (isReadOnly) {
     inputFieldOptions["readOnly"] = "readOnly";
@@ -111,8 +121,8 @@ const GridItem = (props) => {
   };
 
   const _renderColorPickerButton = () => {
-    return isReadOnly ? null : (
-      <Col>
+    return (
+      <>
         <Button variant="secondary" onClick={_toggleColorPicker}>
           <FaPalette />
         </Button>
@@ -127,11 +137,26 @@ const GridItem = (props) => {
             />
           </div>
         ) : null}
+      </>
+    );
+  };
 
-        <Button variant="secondary" className="ml-2">
+  const _renderImgButton = () => {
+    return (
+      <>
+        <label htmlFor="upload-button" className="btn btn-secondary ml-2">
           <FaImage />
-        </Button>
-      </Col>
+        </label>
+        <input
+          type="file"
+          id="upload-button"
+          style={{ display: "none" }}
+          onChange={(e) => {
+            _onFileSelect(e);
+          }}
+          encType="multipart/form-data"
+        />
+      </>
     );
   };
 
@@ -206,7 +231,20 @@ const GridItem = (props) => {
                 />
               </Col>
             </Form.Row>
-            <Form.Row className="mt-2">{_renderColorPickerButton()}</Form.Row>
+
+            {isReadOnly ? null : (
+              <Form.Row className="mt-2">
+                <Col>
+                  {_renderColorPickerButton()}
+                  {_renderImgButton()}
+                </Col>
+              </Form.Row>
+            )}
+            <Form.Row>
+              <Col>
+                <Image src={img} fluid />
+              </Col>
+            </Form.Row>
           </Form>
         </Modal.Body>
         <Modal.Footer style={{ backgroundColor: color, color: "#FDF6E3" }}>

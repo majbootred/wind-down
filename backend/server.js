@@ -12,8 +12,8 @@ const PORT = 443
 const app = express()
 app.use(cors())
 app.use(express.static(path.join(__dirname, '..', 'frontend', 'build')))
-app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({ extended: true }))
+app.use(bodyParser.json({ limit: '50mb' }))
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }))
 
 //db connect
 mongoose.connect('mongodb://127.0.0.1:27017/lists', {
