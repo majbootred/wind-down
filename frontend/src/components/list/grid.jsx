@@ -21,7 +21,7 @@ const Grid = (props) => {
   const _renderListItems = () => {
     return listItems.map((item, key) => {
       return (
-        <Col key={key} xs={12} md={1}>
+        <Col className="mt-1" key={key} xs={3} md={1}>
           <GridItem
             key={key}
             item={item}

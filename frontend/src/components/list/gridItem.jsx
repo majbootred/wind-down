@@ -1,6 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { Button, Modal, Form, Col } from "react-bootstrap";
-import { FaTrashAlt, FaPenFancy, FaCheck } from "react-icons/fa";
+import {
+  FaTrashAlt,
+  FaPenFancy,
+  FaCheck,
+  FaImage,
+  FaPalette,
+} from "react-icons/fa";
+import { GithubPicker } from "react-color";
 
 import { styles } from "./theme";
 const Item = require("../model");
@@ -15,6 +22,7 @@ const GridItem = (props) => {
   const [value2, setValue2] = useState(item.items[1]);
   const [value3, setValue3] = useState(item.items[2]);
   const [modalShow, setModalShow] = useState(false);
+  const [colorPickerShow, setColorPickerShow] = useState(false);
   const [isReadOnly, setIsReadOnly] = useState(true);
   useEffect(() => {
     updateStates(item);
@@ -32,6 +40,7 @@ const GridItem = (props) => {
   const _handleModalClose = () => setModalShow(false);
   const _handleModalShow = () => setModalShow(true);
   const _toggleIsReadOnly = () => setIsReadOnly(!isReadOnly);
+  const _toggleColorPicker = () => setColorPickerShow(!colorPickerShow);
 
   const _onDelete = (e) => {
     e.preventDefault();
@@ -44,7 +53,6 @@ const GridItem = (props) => {
 
     if (!isReadOnly) {
       _onSubmit(e);
-      _handleModalClose();
     }
 
     _toggleIsReadOnly();
@@ -64,6 +72,11 @@ const GridItem = (props) => {
   const _onDateFocus = (e) => {
     e.currentTarget.type = "date";
     e.currentTarget.value = new Date(date).toISOString().substr(0, 10);
+  };
+
+  const _onColorPick = (pickedColor) => {
+    setColor(pickedColor.hex);
+    _toggleColorPicker();
   };
 
   let inputFieldOptions = {};
@@ -96,13 +109,39 @@ const GridItem = (props) => {
       />
     );
   };
-  const _renderEditSubmitButton = () => {
-    return isReadOnly ? <FaPenFancy /> : <FaCheck />;
+
+  const _renderColorPickerButton = () => {
+    return isReadOnly ? null : (
+      <Col>
+        <Button variant="secondary" onClick={_toggleColorPicker}>
+          <FaPalette />
+        </Button>
+        {colorPickerShow && !isReadOnly ? (
+          <div style={{ position: "absolute", zIndex: 1000 }}>
+            <GithubPicker
+              color={color}
+              colors={["#6C71C4", "#268BD2", "#859900", "#B58900", "#CB4B16"]}
+              onChangeComplete={(pickedColor) => {
+                _onColorPick(pickedColor);
+              }}
+            />
+          </div>
+        ) : null}
+
+        <Button variant="secondary" className="ml-2">
+          <FaImage />
+        </Button>
+      </Col>
+    );
   };
 
   return (
     <div>
-      <div className={style("card")} onClick={_handleModalShow}>
+      <div
+        className={style("card")}
+        style={{ backgroundColor: color }}
+        onClick={_handleModalShow}
+      >
         <span>
           {new Date(date).toLocaleDateString("de-DE", {
             year: "numeric",
@@ -112,11 +151,17 @@ const GridItem = (props) => {
         </span>
       </div>
       <Modal show={modalShow} onHide={_handleModalClose}>
-        <Modal.Header closeButton>
+        <Modal.Header style={{ backgroundColor: color, color: "#FDF6E3" }}>
           <Modal.Title>{_renderHeader()}</Modal.Title>
         </Modal.Header>
-        <Modal.Body>
+        <Modal.Body style={{ backgroundColor: "#FDF6E3" }}>
           <Form>
+            {isReadOnly ? null : (
+              <Form.Row>
+                <Col>Drei schöne Dinge:</Col>
+              </Form.Row>
+            )}
+
             <Form.Row>
               <Col>
                 <Form.Control
@@ -161,11 +206,12 @@ const GridItem = (props) => {
                 />
               </Col>
             </Form.Row>
+            <Form.Row className="mt-2">{_renderColorPickerButton()}</Form.Row>
           </Form>
         </Modal.Body>
-        <Modal.Footer>
-          <Button variant="primary" onClick={_handleEditSubmit}>
-            {_renderEditSubmitButton()}
+        <Modal.Footer style={{ backgroundColor: color, color: "#FDF6E3" }}>
+          <Button variant="secondary" onClick={_handleEditSubmit}>
+            {isReadOnly ? <FaPenFancy /> : <FaCheck />}
           </Button>
           <Button variant="secondary" onClick={_onDelete}>
             <FaTrashAlt />
@@ -185,8 +231,7 @@ const style = styles({
   card: ({ shadow, color, pad, radius }) => `
       display: flex;
       flex-direction: column;
-      background: ${color.dark};
-      border-radius: ${radius.lg};
+      border-radius: ${radius.sm};
       justify-content: center;
       align-items: center;
       transition: transform 100ms ease-in-out;
@@ -200,13 +245,11 @@ const style = styles({
 
       &:hover,&:active {
         position: relative;
-        background: ${color.light};
         transform:scale(1.25);
         z-index: 1000;
         box-shadow: ${shadow.lg};
 
         span:last-of-type {
-          color: ${color.dark};
           padding: ${pad.sm};
         }
       }

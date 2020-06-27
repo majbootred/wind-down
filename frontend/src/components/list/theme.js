@@ -3,9 +3,9 @@ import reset from '@dash-ui/reset'
 
 export const variables = {
   color: {
-    dark: '#1d2326',
-    med: '#373b3e',
-    light: '#f2fafe',
+    dark: '#B58900',
+    med: '#839496',
+    light: '#FDF6E3',
   },
   pad: {
     sm: '0.25rem',

@@ -2,7 +2,7 @@ const create = ({
   name = '',
   date = Date.now(),
   items = ['', '', ''],
-  color = '#1d2326',
+  color = '#B58900',
   img = '',
 } = {}) => ({
   name,
