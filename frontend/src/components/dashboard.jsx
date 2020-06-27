@@ -3,7 +3,6 @@ import { set, get, clear, keys } from "idb-keyval";
 import { Container, Row, Col, Button } from "react-bootstrap";
 import axios from "axios";
 import NameInput from "./nameInput";
-import List from "./list/list";
 import Grid from "./list/grid";
 
 export default class Dashboard extends React.Component {
@@ -137,12 +136,12 @@ export default class Dashboard extends React.Component {
           </Col>
         </Row>
         <Row>
-          <Col md={{ span: 6, offset: 3 }} xs={{ span: 12 }}>
+          <Col>
             <h2>{this.state.name}</h2>
           </Col>
         </Row>
-        {this._renderList()}
-        <Row>
+        {this._renderGrid()}
+        <Row className="mt-3">
           <Col md={{ span: 3, offset: 3 }} xs={{ span: 12 }}>
             <Button variant="primary" onClick={this._onClearIDBClick}>
               delete locally
@@ -154,23 +153,8 @@ export default class Dashboard extends React.Component {
             </Button>
           </Col>
         </Row>
-
-        {this._renderGrid()}
       </Container>
     );
-  }
-
-  _renderList() {
-    if (this.state.name.length !== 0) {
-      return (
-        <List
-          listItems={this.state.items}
-          onListChange={(items) => {
-            this._handleListChange(items);
-          }}
-        />
-      );
-    }
   }
 
   _renderGrid() {

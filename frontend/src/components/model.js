@@ -1,11 +1,9 @@
 const create = ({
-  name = '',
-  date = Date.now(),
+  date = new Date().toISOString(),
   items = ['', '', ''],
   color = '#B58900',
   img = '',
 } = {}) => ({
-  name,
   date,
   items,
   color,

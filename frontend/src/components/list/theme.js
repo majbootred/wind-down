@@ -1,5 +1,4 @@
 import styles from '@dash-ui/styles'
-import reset from '@dash-ui/reset'
 
 export const variables = {
   color: {
@@ -26,20 +25,5 @@ export const variables = {
 }
 
 styles.variables(variables)
-
-// styles.global(
-//   ({ color }) => `
-//     html,
-//     body {
-//       font-size: 1rem;
-//       font-family: Nunito, sans-serif;
-//       letter-spacing: -0.025em;
-//       color: ${color.body};
-//       background-color: ${color.light};
-//     }
-
-//     ${reset}
-//   `
-// );
 
 export { default as styles } from '@dash-ui/styles'
