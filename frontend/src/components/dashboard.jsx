@@ -23,38 +23,36 @@ export default class Dashboard extends React.Component {
         get("list")
           .then((val) => {
             //check if idb list has items already (is initialized)
-            //if (val.items !== undefined) {
-            //
-            //check for existing remote dataset and load if it's younger than the local one
-            this._getDatasetFromRemoteDB(val.name)
-              .then((data) => {
-                if (
-                  data !== "offline" &&
-                  data.length !== 0 &&
-                  data.timestamp > val.timestamp
-                ) {
-                  this.setState({
-                    name: data.name,
-                    items: data.items,
-                    timestamp: data.timestamp,
-                  });
-                } else {
-                  //load local dataset to state
-                  this.setState({
-                    name: val.name,
-                    items: val.items,
-                    timestamp: val.timestamp,
-                    isAppInitialized: true,
-                  });
-                }
-              })
-              .catch((error) => {
-                console.error(error);
-              });
-            // } else {
-
-            //   this.setState({ isAppInitialized: true })
-            // }
+            if (val.items !== undefined) {
+              //check for existing remote dataset and load if it's younger than the local one
+              this._getDatasetFromRemoteDB(val.name)
+                .then((data) => {
+                  if (
+                    data !== "offline" &&
+                    data.length !== 0 &&
+                    data.timestamp > val.timestamp
+                  ) {
+                    this.setState({
+                      name: data.name,
+                      items: data.items,
+                      timestamp: data.timestamp,
+                    });
+                  } else {
+                    //load local dataset to state
+                    this.setState({
+                      name: val.name,
+                      items: val.items,
+                      timestamp: val.timestamp,
+                      isAppInitialized: true,
+                    });
+                  }
+                })
+                .catch((error) => {
+                  console.error(error);
+                });
+            } else {
+              this.setState({ isAppInitialized: true });
+            }
           })
           .catch((err) => {
             console.error("idb get error", err);
