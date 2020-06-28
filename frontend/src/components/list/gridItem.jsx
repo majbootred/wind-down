@@ -77,13 +77,14 @@ const GridItem = (props) => {
   };
 
   const _onDateSelect = (e) => {
-    setShowAlert(false);
+    // setShowAlert(false);
     let newDate = new Date(e.target.value).toISOString();
-    const dateExists = dates.some((x) => x === newDate);
-    if (dateExists) {
-    } else {
-      setDate(newDate);
-    }
+    // const dateExists = dates.some((x) => x === newDate);
+    // if (dateExists) {
+    // } else {
+    //   setDate(newDate);
+    // }
+    setDate(newDate);
   };
 
   const _onColorPick = (pickedColor) => {
@@ -135,7 +136,11 @@ const GridItem = (props) => {
   const _renderColorPickerButton = () => {
     return (
       <>
-        <Button variant="secondary" onClick={_toggleColorPicker}>
+        <Button
+          className="mb-2"
+          variant="secondary"
+          onClick={_toggleColorPicker}
+        >
           <FaPalette />
         </Button>
         {showColorPicker && !isReadOnly ? (
@@ -207,7 +212,7 @@ const GridItem = (props) => {
             </Form.Row>
             {isReadOnly ? null : (
               <Form.Row>
-                <Col>Drei schöne Dinge:</Col>
+                <Col>Three nice things that happened today:</Col>
               </Form.Row>
             )}
 
