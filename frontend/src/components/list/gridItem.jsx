@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Button, Modal, Form, Col, Image } from "react-bootstrap";
+import { Button, Modal, Form, Col, Image, Alert } from "react-bootstrap";
 import {
   FaTrashAlt,
   FaPenFancy,
@@ -14,7 +14,7 @@ const Item = require("../model");
 const style = cardStyles;
 
 const GridItem = (props) => {
-  const { id, item, onSubmit, onDelete } = props;
+  const { id, item, dates, onSubmit, onDelete } = props;
 
   const [date, setDate] = useState(item.date);
   const [color, setColor] = useState(item.color);
@@ -22,8 +22,9 @@ const GridItem = (props) => {
   const [value1, setValue1] = useState(item.items[0]);
   const [value2, setValue2] = useState(item.items[1]);
   const [value3, setValue3] = useState(item.items[2]);
-  const [modalShow, setModalShow] = useState(false);
-  const [colorPickerShow, setColorPickerShow] = useState(false);
+  const [showAlert, setShowAlert] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [showColorPicker, setShowColorPicker] = useState(false);
   const [isReadOnly, setIsReadOnly] = useState(true);
   useEffect(() => {
     updateStates(item);
@@ -38,10 +39,10 @@ const GridItem = (props) => {
     setValue3(item.items[2]);
   };
 
-  const _handleModalClose = () => setModalShow(false);
-  const _handleModalShow = () => setModalShow(true);
+  const _handleModalClose = () => setShowModal(false);
+  const _handleModalShow = () => setShowModal(true);
   const _toggleIsReadOnly = () => setIsReadOnly(!isReadOnly);
-  const _toggleColorPicker = () => setColorPickerShow(!colorPickerShow);
+  const _toggleColorPicker = () => setShowColorPicker(!showColorPicker);
 
   const _onDelete = (e) => {
     e.preventDefault();
@@ -55,12 +56,12 @@ const GridItem = (props) => {
     if (!isReadOnly) {
       _onSubmit(e);
     }
-
     _toggleIsReadOnly();
   };
 
   const _onSubmit = (e) => {
     e.preventDefault();
+
     let changedItem = Item.create({
       date,
       items: [value1, value2, value3],
@@ -73,6 +74,16 @@ const GridItem = (props) => {
   const _onDateFocus = (e) => {
     e.currentTarget.type = "date";
     e.currentTarget.value = new Date(date).toISOString().substr(0, 10);
+  };
+
+  const _onDateSelect = (e) => {
+    setShowAlert(false);
+    let newDate = new Date(e.target.value).toISOString();
+    const dateExists = dates.some((x) => x === newDate);
+    if (dateExists) {
+    } else {
+      setDate(newDate);
+    }
   };
 
   const _onColorPick = (pickedColor) => {
@@ -115,7 +126,7 @@ const GridItem = (props) => {
         })}
         onFocus={_onDateFocus}
         onChange={(e) => {
-          setDate(new Date(e.target.value));
+          _onDateSelect(e);
         }}
       />
     );
@@ -127,7 +138,7 @@ const GridItem = (props) => {
         <Button variant="secondary" onClick={_toggleColorPicker}>
           <FaPalette />
         </Button>
-        {colorPickerShow && !isReadOnly ? (
+        {showColorPicker && !isReadOnly ? (
           <div style={{ position: "absolute", zIndex: 1000 }}>
             <GithubPicker
               color={color}
@@ -176,12 +187,24 @@ const GridItem = (props) => {
           })}
         </span>
       </div>
-      <Modal show={modalShow} onHide={_handleModalClose}>
+      <Modal show={showModal} onHide={_handleModalClose}>
         <Modal.Header style={{ backgroundColor: color, color: "#FDF6E3" }}>
           <Modal.Title>{_renderHeader()}</Modal.Title>
         </Modal.Header>
         <Modal.Body style={{ backgroundColor: "#FDF6E3" }}>
           <Form>
+            <Form.Row>
+              <Col>
+                <Alert
+                  show={showAlert && !isReadOnly}
+                  variant="light"
+                  onClose={() => setShowAlert(false)}
+                  dismissible
+                >
+                  You already have a card for this day
+                </Alert>
+              </Col>
+            </Form.Row>
             {isReadOnly ? null : (
               <Form.Row>
                 <Col>Drei schöne Dinge:</Col>
