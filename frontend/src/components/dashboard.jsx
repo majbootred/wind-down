@@ -14,6 +14,8 @@ export default class Dashboard extends React.Component {
       items: [],
       timestamp: undefined,
     };
+    this.URL = "https://lyra.et-inf.fho-emden.de:15121";
+    //this.URL = "https://localhost:443"
   }
 
   componentDidMount() {
@@ -224,7 +226,7 @@ export default class Dashboard extends React.Component {
     if (navigator.onLine) {
       return new Promise((resolve, reject) => {
         axios
-          .get(`https://localhost:443/getOne?name=${name}`)
+          .get(`${this.URL}/getOne?name=${name}`)
           .then((res) => {
             resolve(res.data);
           })
@@ -247,7 +249,7 @@ export default class Dashboard extends React.Component {
     if (navigator.onLine && this.state.name.length !== 0) {
       return new Promise((resolve, reject) => {
         axios
-          .post(`https://localhost:443/save`, {
+          .post(`${this.URL}/save`, {
             name: this.state.name,
             items: this.state.items,
             timestamp: this.state.timestamp,
@@ -274,7 +276,7 @@ export default class Dashboard extends React.Component {
     if (navigator.onLine) {
       return new Promise((resolve, reject) => {
         axios
-          .get(`https://localhost:443/deleteOne?name=${this.state.name}`)
+          .get(`${this.URL}/deleteOne?name=${this.state.name}`)
           .then((res) => {
             resolve(res.data);
           })
