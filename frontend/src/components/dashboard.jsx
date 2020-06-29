@@ -9,15 +9,15 @@ export default class Dashboard extends React.Component {
   constructor() {
     super();
     this.state = {
+      APIurl:
+        process.env.NODE_ENV === `development`
+          ? `https://localhost:443`
+          : `https://${window.location.host}`,
       isAppInitialized: false,
       name: "",
       items: [],
       timestamp: undefined,
     };
-    this.APIurl =
-      process.env.NODE_ENV === `development`
-        ? `https://localhost:443`
-        : `https://${window.location.host}`;
   }
 
   componentDidMount() {
@@ -27,7 +27,7 @@ export default class Dashboard extends React.Component {
         get("list")
           .then((val) => {
             //check if idb list has items already (is initialized)
-            if (val.items !== undefined) {
+            if (val.name !== undefined || val.name.length !== 0) {
               //check for existing remote dataset and load if it's younger than the local one
               this._getDatasetFromRemoteDB(val.name)
                 .then((data) => {
@@ -40,6 +40,7 @@ export default class Dashboard extends React.Component {
                       name: data.name,
                       items: data.items,
                       timestamp: data.timestamp,
+                      isAppInitialized: true,
                     });
                   } else {
                     //load local dataset to state
@@ -228,7 +229,7 @@ export default class Dashboard extends React.Component {
     if (navigator.onLine) {
       return new Promise((resolve, reject) => {
         axios
-          .get(`${this.APIurl}/getOne?name=${name}`)
+          .get(`${this.state.APIurl}/getOne?name=${name}`)
           .then((res) => {
             resolve(res.data);
           })
@@ -251,7 +252,7 @@ export default class Dashboard extends React.Component {
     if (navigator.onLine && this.state.name.length !== 0) {
       return new Promise((resolve, reject) => {
         axios
-          .post(`${this.APIurl}/save`, {
+          .post(`${this.state.APIurl}/save`, {
             name: this.state.name,
             items: this.state.items,
             timestamp: this.state.timestamp,
@@ -278,7 +279,7 @@ export default class Dashboard extends React.Component {
     if (navigator.onLine) {
       return new Promise((resolve, reject) => {
         axios
-          .get(`${this.APIurl}/deleteOne?name=${this.state.name}`)
+          .get(`${this.state.APIurl}/deleteOne?name=${this.state.name}`)
           .then((res) => {
             resolve(res.data);
           })
