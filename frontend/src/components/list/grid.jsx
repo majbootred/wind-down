@@ -36,6 +36,9 @@ const Grid = (props) => {
   };
 
   const _renderGridItems = () => {
+    listItems.sort(function (a, b) {
+      return new Date(a.date) - new Date(b.date);
+    });
     return listItems.map((item, key) => {
       let shallowDates = [...dates];
       let indexOfCurrentDate = shallowDates.findIndex((x) => x === item.date);
