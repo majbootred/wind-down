@@ -24,6 +24,8 @@ const style = cardStyles;
 const GridItem = (props) => {
   const { id, item, dates, onSubmit, onDelete } = props;
 
+  console.log(dates);
+
   const [date, setDate] = useState(item.date);
   const [color, setColor] = useState(item.color);
   const [img, setImg] = useState(item.img);
@@ -60,11 +62,17 @@ const GridItem = (props) => {
 
   const _handleEditSubmit = (e) => {
     e.preventDefault();
-
     if (!isReadOnly) {
-      _onSubmit(e);
+      const dateExists = dates.some((x) => x === date);
+      if (dateExists) {
+        setShowAlert(true);
+      } else {
+        _onSubmit(e);
+        _toggleIsReadOnly();
+      }
+    } else {
+      _toggleIsReadOnly();
     }
-    _toggleIsReadOnly();
   };
 
   const _onSubmit = (e) => {
@@ -189,13 +197,14 @@ const GridItem = (props) => {
   return (
     <>
       <div
+        id={id}
         className={style("card")}
         style={{ backgroundColor: color }}
         onClick={_handleModalShow}
       >
         <span>
           {new Date(date).toLocaleDateString("de-DE", {
-            year: "numeric",
+            year: "2-digit",
             month: "numeric",
             day: "numeric",
           })}

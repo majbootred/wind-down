@@ -16,8 +16,8 @@ const NameInput = ({ onSubmitName }) => {
     <Form ref={formRef}>
       <InputGroup className="mb-3">
         <FormControl
-          placeholder="Provide an already existing name or create a new list"
-          aria-label="Provide an already existing name or create a new list"
+          placeholder="Provide a name that already exists or create a new one"
+          aria-label="Provide a name that already exists or create a new one"
           onChange={(e) => setName(e.target.value)}
         />
         <InputGroup.Append>

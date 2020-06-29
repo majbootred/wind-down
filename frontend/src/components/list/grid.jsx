@@ -40,15 +40,17 @@ const Grid = (props) => {
       return new Date(a.date) - new Date(b.date);
     });
     return listItems.map((item, key) => {
-      let shallowDates = [...dates];
-      let indexOfCurrentDate = shallowDates.findIndex((x) => x === item.date);
-      let datesWithoutCurrentDate = shallowDates.splice(indexOfCurrentDate, 1);
+      let datesWithoutCurrent = [...dates];
+      let indexOfCurrentDate = datesWithoutCurrent.findIndex(
+        (x) => x === item.date
+      );
+      datesWithoutCurrent.splice(indexOfCurrentDate, 1);
       return (
         <Col className="mt-1" key={key} xs={4} md={1}>
           <GridItem
             id={key}
             item={item}
-            dates={datesWithoutCurrentDate}
+            dates={datesWithoutCurrent}
             onSubmit={(item) => _onItemChange(item, key)}
             onDelete={() => _onItemDelete(key)}
           />
