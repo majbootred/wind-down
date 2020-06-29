@@ -16,7 +16,7 @@ app.use(bodyParser.json({ limit: '50mb' }))
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }))
 
 //db connect
-mongoose.connect('mongodb://127.0.0.1:27017/lists', {
+mongoose.connect('mongodb://localhost:27017/lists', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
