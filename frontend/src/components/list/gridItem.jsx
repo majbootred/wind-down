@@ -1,5 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { Button, Modal, Form, Col, Image, Alert } from "react-bootstrap";
+import {
+  Button,
+  Modal,
+  Form,
+  Col,
+  Image,
+  CloseButton,
+  Alert,
+} from "react-bootstrap";
 import {
   FaTrashAlt,
   FaPenFancy,
@@ -69,6 +77,7 @@ const GridItem = (props) => {
       img,
     });
     onSubmit(changedItem);
+    _handleModalClose();
   };
 
   const _onDateFocus = (e) => {
@@ -195,6 +204,10 @@ const GridItem = (props) => {
       <Modal show={showModal} onHide={_handleModalClose}>
         <Modal.Header style={{ backgroundColor: color, color: "#FDF6E3" }}>
           <Modal.Title>{_renderHeader()}</Modal.Title>
+          <CloseButton
+            style={{ color: "#FDF6E3" }}
+            onClick={_handleModalClose}
+          />
         </Modal.Header>
         <Modal.Body style={{ backgroundColor: "#FDF6E3" }}>
           <Form>
