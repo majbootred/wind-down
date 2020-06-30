@@ -46,7 +46,7 @@ const Grid = (props) => {
       );
       datesWithoutCurrent.splice(indexOfCurrentDate, 1);
       return (
-        <Col className="mt-1" key={key} xs={4} md={1}>
+        <Col className="mt-1" key={key} xs={4} md={2} lg={1}>
           <GridItem
             id={key}
             item={item}
@@ -74,7 +74,7 @@ const Grid = (props) => {
         </Col>
       </Row>
       <Row>
-        <Col className="mt-1" xs={4} md={1}>
+        <Col className="mt-1" xs={4} md={2} lg={1}>
           <div
             className={style("card")}
             style={{ backgroundColor: "#B58900" }}

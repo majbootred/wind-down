@@ -26,8 +26,8 @@ export default class Dashboard extends React.Component {
       if (keys.length !== 0) {
         get("list")
           .then((val) => {
-            //check if idb list has items already (is initialized)
-            if (val.name !== undefined || val.name.length !== 0) {
+            //check if idb list has already entries
+            if (val !== undefined) {
               //check for existing remote dataset and load if it's younger than the local one
               this._getDatasetFromRemoteDB(val.name)
                 .then((data) => {
@@ -131,7 +131,7 @@ export default class Dashboard extends React.Component {
 
   render() {
     return (
-      <Container style={{ marginTop: 20 }}>
+      <Container style={{ marginTop: 20 }} fluid>
         <Row>
           <Col md={{ span: 6, offset: 3 }} xs={{ span: 12 }}>
             <NameInput onSubmitName={this._handleNameSubmit} />
@@ -145,16 +145,15 @@ export default class Dashboard extends React.Component {
         </Row>
         {this._renderGrid()}
         <Row className="mt-3">
-          <Col md={{ span: 3, offset: 3 }} xs={{ span: 12 }}>
+          <Col md={{ span: 2 }} xs={{ span: 12 }}>
             <Button variant="primary" onClick={this._onClearIDBClick}>
               delete locally
             </Button>
-          </Col>
-          <Col md={{ span: 3 }} xs={{ span: 12 }}>
             <Button variant="primary" onClick={this._onClearMongoDBClick}>
               delete locally and remote
             </Button>
           </Col>
+          <Col md={{ span: 2 }} xs={{ span: 12 }}></Col>
         </Row>
       </Container>
     );

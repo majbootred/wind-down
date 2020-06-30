@@ -13,15 +13,15 @@ export default styles({
         justify-content: center;
         align-items: center;
         transition: transform 100ms ease-in-out;
-        width: 80px;
-        height: 80px;
+        width: 70px;
+        height: 70px;
 
         span:last-of-type {
           color: #fff;
           padding: ${pad.sm};
         }
 
-        &:hover,&:active {
+        &:hover {
           position: relative;
           transform:scale(1.25);
           z-index: 1000;

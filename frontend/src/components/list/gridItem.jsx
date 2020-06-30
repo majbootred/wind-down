@@ -7,6 +7,8 @@ import {
   Image,
   CloseButton,
   Alert,
+  OverlayTrigger,
+  Tooltip,
 } from "react-bootstrap";
 import {
   FaTrashAlt,
@@ -23,8 +25,6 @@ const style = cardStyles;
 
 const GridItem = (props) => {
   const { id, item, dates, onSubmit, onDelete } = props;
-
-  console.log(dates);
 
   const [date, setDate] = useState(item.date);
   const [color, setColor] = useState(item.color);
@@ -88,21 +88,10 @@ const GridItem = (props) => {
     _handleModalClose();
   };
 
-  const _onDateFocus = (e) => {
-    e.currentTarget.type = "date";
-    e.currentTarget.value = new Date(date).toISOString().substr(0, 10);
-  };
-
-  const _onDateSelect = (e) => {
-    // setShowAlert(false);
-    let newDate = new Date(e.target.value).toISOString();
-    // const dateExists = dates.some((x) => x === newDate);
-    // if (dateExists) {
-    // } else {
-    //   setDate(newDate);
-    // }
-    setDate(newDate);
-  };
+  // const _onDateFocus = (e) => {
+  //   e.currentTarget.type = "date";
+  //   e.currentTarget.value = new Date(date).toISOString().substr(0, 10);
+  // };
 
   const _onColorPick = (pickedColor) => {
     setColor(pickedColor.hex);
@@ -135,16 +124,17 @@ const GridItem = (props) => {
       })
     ) : (
       <Form.Control
-        type="text"
+        type="date"
         name="date"
+        value={new Date(date).toISOString().substr(0, 10)}
         placeholder={new Date(date).toLocaleDateString("de-DE", {
           year: "numeric",
           month: "numeric",
           day: "numeric",
         })}
-        onFocus={_onDateFocus}
+        // onFocus={_onDateFocus}
         onChange={(e) => {
-          _onDateSelect(e);
+          setDate(new Date(e.target.value).toISOString());
         }}
       />
     );
@@ -153,13 +143,21 @@ const GridItem = (props) => {
   const _renderColorPickerButton = () => {
     return (
       <>
-        <Button
-          className="mb-2"
-          variant="secondary"
-          onClick={_toggleColorPicker}
+        <OverlayTrigger
+          placement="top"
+          overlay={
+            <Tooltip id={`tooltip-colorPicker`}>Mood color of the day</Tooltip>
+          }
         >
-          <FaPalette />
-        </Button>
+          <Button
+            className="mb-2"
+            variant="secondary"
+            onClick={_toggleColorPicker}
+          >
+            <FaPalette />
+          </Button>
+        </OverlayTrigger>
+
         {showColorPicker && !isReadOnly ? (
           <div style={{ position: "absolute", zIndex: 1000 }}>
             <GithubPicker
@@ -178,9 +176,17 @@ const GridItem = (props) => {
   const _renderImgButton = () => {
     return (
       <>
-        <label htmlFor="upload-button" className="btn btn-secondary ml-2">
-          <FaImage />
-        </label>
+        <OverlayTrigger
+          placement="top"
+          overlay={
+            <Tooltip id={`tooltip-imagePicker`}>Photo of the day</Tooltip>
+          }
+        >
+          <label htmlFor="upload-button" className="btn btn-secondary ml-2">
+            <FaImage />
+          </label>
+        </OverlayTrigger>
+
         <input
           type="file"
           id="upload-button"
@@ -224,7 +230,7 @@ const GridItem = (props) => {
               <Col>
                 <Alert
                   show={showAlert && !isReadOnly}
-                  variant="light"
+                  variant="warning"
                   onClose={() => setShowAlert(false)}
                   dismissible
                 >
