@@ -1,9 +1,11 @@
 import React from "react";
 import { set, get, clear, keys } from "idb-keyval";
-import { Container, Row, Col, Button } from "react-bootstrap";
+import { Container, Row, Col, Button, Image } from "react-bootstrap";
 import axios from "axios";
-import NameInput from "./nameInput";
+import { FaArrowLeft } from "react-icons/fa";
+import Intro from "./intro";
 import Grid from "./list/grid";
+import LogoSmall from "./logo_small.png";
 
 export default class Dashboard extends React.Component {
   constructor() {
@@ -17,17 +19,18 @@ export default class Dashboard extends React.Component {
       name: "",
       items: [],
       timestamp: undefined,
+      showIntro: true,
     };
   }
 
   componentDidMount() {
     keys().then((keys) => {
       //check for existing idb and load it
-      if (keys.length !== 0) {
+      if (keys.includes("list")) {
         get("list")
           .then((val) => {
             //check if idb list has already entries
-            if (val !== undefined) {
+            if (val.name !== "") {
               //check for existing remote dataset and load if it's younger than the local one
               this._getDatasetFromRemoteDB(val.name)
                 .then((data) => {
@@ -41,6 +44,7 @@ export default class Dashboard extends React.Component {
                       items: data.items,
                       timestamp: data.timestamp,
                       isAppInitialized: true,
+                      showIntro: false,
                     });
                   } else {
                     //load local dataset to state
@@ -49,6 +53,7 @@ export default class Dashboard extends React.Component {
                       items: val.items,
                       timestamp: val.timestamp,
                       isAppInitialized: true,
+                      showIntro: false,
                     });
                   }
                 })
@@ -80,26 +85,30 @@ export default class Dashboard extends React.Component {
   }
 
   componentDidUpdate() {
-    if (this.state.isAppInitialized) {
+    if (this.state.isAppInitialized && this.state.name !== "") {
       get("list").then((val) => {
-        //check mongodb for entry with given name and if it's younger than idb entry
-        this._getDatasetFromRemoteDB(val.name)
-          .then((data) => {
-            if (
-              data !== "offline" &&
-              data.length !== 0 &&
-              data.timestamp > val.timestamp
-            ) {
-              this.setState({
-                name: data.name,
-                items: data.items,
-                timestamp: data.timestamp,
-              });
-            }
-          })
-          .catch((error) => {
-            console.error(error);
-          });
+        //check if idb already has a name
+        if (val.name !== 0) {
+          //check mongodb for entry with given name and if it's younger than idb entry
+          this._getDatasetFromRemoteDB(val.name)
+            .then((data) => {
+              if (
+                data !== "offline" &&
+                data.length !== 0 &&
+                data.timestamp > val.timestamp
+              ) {
+                this.setState({
+                  name: data.name,
+                  items: data.items,
+                  timestamp: data.timestamp,
+                  showIntro: false,
+                });
+              }
+            })
+            .catch((error) => {
+              console.error(error);
+            });
+        }
         // save to local idb
         set("list", {
           name: this.state.name,
@@ -124,52 +133,66 @@ export default class Dashboard extends React.Component {
           .catch((err) => {
             console.error("update error", err);
           });
-        //  }
       });
     }
   }
 
   render() {
     return (
-      <Container style={{ marginTop: 20 }} fluid>
-        <Row>
-          <Col md={{ span: 6, offset: 3 }} xs={{ span: 12 }}>
-            <NameInput onSubmitName={this._handleNameSubmit} />
-            <hr />
-          </Col>
-        </Row>
-        <Row>
-          <Col>
-            <h2>{this.state.name}</h2>
-          </Col>
-        </Row>
-        {this._renderGrid()}
-        <Row className="mt-3">
-          <Col md={{ span: 2 }} xs={{ span: 12 }}>
-            <Button variant="primary" onClick={this._onClearIDBClick}>
-              delete locally
-            </Button>
-            <Button variant="primary" onClick={this._onClearMongoDBClick}>
-              delete locally and remote
-            </Button>
-          </Col>
-          <Col md={{ span: 2 }} xs={{ span: 12 }}></Col>
-        </Row>
+      <Container style={{ marginTop: 20 }}>
+        {this.state.showIntro ? (
+          <Row className="justify-content-md-center">
+            <Col md={{ span: 6 }} xs={{ span: 12 }}>
+              <Intro onSubmitName={this._handleNameSubmit} />
+            </Col>
+          </Row>
+        ) : (
+          <>
+            <Row>
+              <Col className="d-flex align-items-end flex-column">
+                <Button
+                  onClick={() => {
+                    this.setState({ showIntro: true });
+                  }}
+                >
+                  <FaArrowLeft />
+                </Button>
+              </Col>
+            </Row>
+            <Row>
+              <Col>
+                <h2>
+                  <Image src={LogoSmall} fluid className="mr-3" />
+                  {this.state.name}
+                </h2>
+              </Col>
+            </Row>
+            <Grid
+              listItems={this.state.items}
+              onListChange={(items) => {
+                this._handleListChange(items);
+              }}
+            />
+            <Row>
+              <Col>
+                {" "}
+                <hr />
+              </Col>
+            </Row>
+            {/* <Row className="mt-3">
+              <Col md={{ span: 2 }} xs={{ span: 12 }}>
+                <Button variant="primary" onClick={this._onClearIDBClick}>
+                  delete locally
+                </Button>
+                <Button variant="primary" onClick={this._onClearMongoDBClick}>
+                  delete locally and remote
+                </Button>
+              </Col>
+            </Row> */}
+          </>
+        )}
       </Container>
     );
-  }
-
-  _renderGrid() {
-    if (this.state.name.length !== 0) {
-      return (
-        <Grid
-          listItems={this.state.items}
-          onListChange={(items) => {
-            this._handleListChange(items);
-          }}
-        />
-      );
-    }
   }
 
   _handleNameSubmit = (name) => {
@@ -182,6 +205,7 @@ export default class Dashboard extends React.Component {
               name: data.name,
               items: data.items,
               timestamp: data.timestamp,
+              showIntro: false,
             });
           } else {
             //initialize new list in state
@@ -189,12 +213,15 @@ export default class Dashboard extends React.Component {
               name: name,
               items: [],
               timestamp: new Date().getTime(),
+              showIntro: false,
             });
           }
         })
         .catch((error) => {
           console.error(error);
         });
+    } else {
+      this.setState({ showIntro: false });
     }
   };
 
