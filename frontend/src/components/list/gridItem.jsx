@@ -16,6 +16,7 @@ import {
   FaCheck,
   FaImage,
   FaPalette,
+  FaTimes,
 } from "react-icons/fa";
 import { GithubPicker } from "react-color";
 
@@ -88,11 +89,6 @@ const GridItem = (props) => {
     _handleModalClose();
   };
 
-  // const _onDateFocus = (e) => {
-  //   e.currentTarget.type = "date";
-  //   e.currentTarget.value = new Date(date).toISOString().substr(0, 10);
-  // };
-
   const _onColorPick = (pickedColor) => {
     setColor(pickedColor.hex);
     _toggleColorPicker();
@@ -132,7 +128,6 @@ const GridItem = (props) => {
           month: "numeric",
           day: "numeric",
         })}
-        // onFocus={_onDateFocus}
         onChange={(e) => {
           setDate(new Date(e.target.value).toISOString());
         }}
@@ -197,6 +192,23 @@ const GridItem = (props) => {
           encType="multipart/form-data"
         />
       </>
+    );
+  };
+
+  const _renderDeleteImageButton = () => {
+    return (
+      <OverlayTrigger
+        placement="top"
+        overlay={<Tooltip id={`tooltip-colorPicker`}>Delete Photo</Tooltip>}
+      >
+        <Button
+          className="mb-2 ml-2"
+          variant="secondary"
+          onClick={() => setImg("")}
+        >
+          <FaTimes />
+        </Button>
+      </OverlayTrigger>
     );
   };
 
@@ -294,12 +306,15 @@ const GridItem = (props) => {
                 <Col>
                   {_renderColorPickerButton()}
                   {_renderImgButton()}
+                  {img.length !== 0 ? _renderDeleteImageButton() : null}
                 </Col>
               </Form.Row>
             )}
             <Form.Row>
               <Col>
-                <Image src={img} fluid />
+                <center>
+                  <Image src={img} fluid style={{ maxHeight: 250 }} />
+                </center>
               </Col>
             </Form.Row>
           </Form>
