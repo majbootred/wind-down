@@ -31,6 +31,18 @@ connection.on('error', (err) => {
   console.error('connection error:', err)
 })
 
+// db close
+var dbClose = function () {
+  connection.close(function () {
+    console.log(
+      'Connection with MongoDB is disconnected through app termination',
+    )
+    process.exit(0)
+  })
+}
+
+process.on('SIGINT', dbClose).on('SIGTERM', dbClose)
+
 //routes
 app.get('/', function (req, res) {
   res.sendFile(path.join(__dirname, '..', 'frontend', 'build', 'index.html'))
