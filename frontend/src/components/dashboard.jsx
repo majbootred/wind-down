@@ -3,6 +3,7 @@ import { set, get, clear, keys } from "idb-keyval";
 import { Container, Row, Col, Button, Image } from "react-bootstrap";
 import axios from "axios";
 import { FaArrowLeft } from "react-icons/fa";
+import Spinner from "./spinner";
 import Intro from "./intro";
 import Grid from "./list/grid";
 import LogoSmall from "./logo_small.png";
@@ -20,6 +21,7 @@ export default class Dashboard extends React.Component {
       items: [],
       timestamp: undefined,
       showIntro: true,
+      showSpinner: false,
     };
   }
 
@@ -31,6 +33,7 @@ export default class Dashboard extends React.Component {
           .then((val) => {
             //check if idb list has already entries
             if (val.name !== "") {
+              this.setState({ showIntro: false, showSpinner: true });
               //check for existing remote dataset and load if it's younger than the local one
               this._getDatasetFromRemoteDB(val.name)
                 .then((data) => {
@@ -44,7 +47,7 @@ export default class Dashboard extends React.Component {
                       items: data.items,
                       timestamp: data.timestamp,
                       isAppInitialized: true,
-                      showIntro: false,
+                      showSpinner: false,
                     });
                   } else {
                     //load local dataset to state
@@ -53,7 +56,7 @@ export default class Dashboard extends React.Component {
                       items: val.items,
                       timestamp: val.timestamp,
                       isAppInitialized: true,
-                      showIntro: false,
+                      showSpinner: false,
                     });
                   }
                 })
@@ -89,6 +92,7 @@ export default class Dashboard extends React.Component {
       get("list").then((val) => {
         //check if idb already has a name
         if (val.name !== 0) {
+          //TODO: showSpinner
           //check mongodb for entry with given name and if it's younger than idb entry
           this._getDatasetFromRemoteDB(val.name)
             .then((data) => {
@@ -146,6 +150,12 @@ export default class Dashboard extends React.Component {
               <Intro onSubmitName={this._handleNameSubmit} />
             </Col>
           </Row>
+        ) : this.state.showSpinner ? (
+          <Row className="justify-content-md-center">
+            <Col md={{ span: 6 }} xs={{ span: 12 }}>
+              <Spinner />
+            </Col>
+          </Row>
         ) : (
           <>
             <Row>
@@ -175,7 +185,6 @@ export default class Dashboard extends React.Component {
             />
             <Row>
               <Col>
-                {" "}
                 <hr />
               </Col>
             </Row>
@@ -197,6 +206,7 @@ export default class Dashboard extends React.Component {
 
   _handleNameSubmit = (name) => {
     if (name !== this.state.name) {
+      this.setState({ showIntro: false, showSpinner: true });
       //load from DB
       this._getDatasetFromRemoteDB(name)
         .then((data) => {
@@ -205,7 +215,7 @@ export default class Dashboard extends React.Component {
               name: data.name,
               items: data.items,
               timestamp: data.timestamp,
-              showIntro: false,
+              showSpinner: false,
             });
           } else {
             //initialize new list in state
@@ -213,7 +223,7 @@ export default class Dashboard extends React.Component {
               name: name,
               items: [],
               timestamp: new Date().getTime(),
-              showIntro: false,
+              showSpinner: false,
             });
           }
         })
